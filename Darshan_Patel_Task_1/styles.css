@@ -1,0 +1,39 @@
+body{
+    font-family: sans-serif;
+    background: #FFFFCC;
+}
+
+.header__1{
+    background: rgb(167,5,5);
+    text-align: center;
+    border-bottom: 15px solid red;
+    color: #FFFFCC;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    letter-spacing: 0.5em;
+    word-spacing: 0.25em;
+}
+
+.subheader__1{
+    background: green;
+    color: white;
+    padding: 5px;
+}
+
+.table_container{
+    background: lightgrey;
+}
+
+.grey__header{
+    color: lightgray;
+}
+
+.list__container{
+    color: red;
+}
+
+.image__container{
+    border: dashed 3px lightgray;
+    height: 150px;
+    width: 200px;
+}
