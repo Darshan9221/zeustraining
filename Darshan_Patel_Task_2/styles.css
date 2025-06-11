@@ -12,12 +12,14 @@ body{
     align-items: center;
     gap: 20px;
     padding: 10px;
-    border: 1px solid black;
+    padding-right: 20px;
+    box-shadow:  0 4px 8px rgba(0, 0, 0, 0.2); 
+    border-radius: 10px;
 }
 
 .icons__content{
     display: flex;
-    gap: 40px;
+    gap: 30px;
     color: gray;
     margin-bottom: 35px;
 }
@@ -25,13 +27,14 @@ body{
 .username{
     font-size: 18px;
     font-weight: bold;
+    margin-bottom: -8px;
 }
 
 
 .bio{
     font-size: 19px;
-    color: #333;
-    margin: 20px 0;
+    color: #242323;
+    margin-bottom: 20px;
 }
 
 .icons{
@@ -42,4 +45,20 @@ body{
 
 .main__img{
     width: 150px;
+}
+
+.icons{
+    margin-right: 8px;
+}
+
+.far{
+    margin-right: 8px;
+}
+.fas{
+    margin-right: 8px;
+}
+
+.done__container{
+    font-weight: 550;
+    font-size: 15px;
 }
