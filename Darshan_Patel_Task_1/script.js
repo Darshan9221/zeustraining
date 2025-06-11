@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.querySelector('form');
     form.addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent form submission for validation
         let errors = [];
         const name = form.querySelector('input[type="text"]').value.trim();
         const comments = form.querySelector('textarea').value.trim();
@@ -8,6 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (!name) {
             errors.push('Name is required.');
+            form.querySelector('input[type="text"]').focus()
         }
         if (!comments) {
             errors.push('Comments are required.');
@@ -18,7 +20,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (errors.length > 0) {
             alert(errors.join('\n'));
-            event.preventDefault();
         }
     });
 });

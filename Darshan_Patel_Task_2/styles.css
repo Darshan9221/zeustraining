@@ -1,0 +1,45 @@
+body{
+    background-color: #f0f0f0;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+}
+
+.card__container{
+    display: flex;
+    width: fit-content;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 20px;
+    padding: 10px;
+    border: 1px solid black;
+}
+
+.icons__content{
+    display: flex;
+    gap: 40px;
+    color: gray;
+    margin-bottom: 35px;
+}
+
+.username{
+    font-size: 18px;
+    font-weight: bold;
+}
+
+
+.bio{
+    font-size: 19px;
+    color: #333;
+    margin: 20px 0;
+}
+
+.icons{
+    width: 20px;
+    height: 20px;
+    color: #f0f0f0;
+}
+
+.main__img{
+    width: 150px;
+}
