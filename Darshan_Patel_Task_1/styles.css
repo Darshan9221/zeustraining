@@ -15,9 +15,9 @@ body {
 }
 
 .subheader__1 {
-  background: green;
+  background: rgb(31, 173, 31);
   color: white;
-  padding: 5px 5px 5px 20px;
+  padding: 5px 5px 5px 10px;
 }
 
 .table_container {
@@ -35,7 +35,6 @@ body {
 
 .image__container {
   border: dashed 3px lightgray;
-  height: 150px;
   width: 200px;
 }
 
@@ -45,4 +44,8 @@ body {
 
 b {
   font-style: italic;
+}
+
+.radio_btn:focus {
+  outline: 1px solid black;
 }
