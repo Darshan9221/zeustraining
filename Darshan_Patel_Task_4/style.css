@@ -1,0 +1,85 @@
+body {
+  padding: 50px;
+}
+
+.container {
+  display: grid;
+  grid-template-areas:
+    "header header"
+    "sidebar content"
+    "footer footer";
+  grid-template-columns: 1fr 3fr;
+  grid-template-rows: 2fr 12fr 3fr;
+  gap: 2px;
+  padding: 5px;
+  border: 1px solid black;
+  max-width: 550px;
+  min-height: 450px;
+  color: white;
+}
+.container > div {
+  background-color: rgba(255, 255, 255, 0.8);
+}
+.container > div.header {
+  grid-area: header;
+  border: 1px solid black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(to right, #9e8be7, #af98eb);
+}
+.container > div.sidebar {
+  grid-area: sidebar;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background: linear-gradient(to bottom, #52e4e1, #3ac2bd);
+  border: 1px solid black;
+}
+.container > div.content {
+  display: grid;
+  grid-area: content;
+  grid-template-areas:
+    "content1 content1"
+    "content2 content3";
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+}
+
+.container > div.footer {
+  text-align: center;
+  grid-area: footer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid black;
+  background: linear-gradient(to right, #8a6cf5, #b49ef3);
+}
+
+.content1 {
+  grid-column: 1 / span 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #8368f0 2%, #4ebafd 80%, #52edf8 95%);
+  border: 1px solid black;
+}
+
+.content2 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #8368f0 2%, #4ebafd 80%, #52edf8 95%);
+
+  border: 1px solid black;
+}
+
+.content3 {
+  display: flex;
+  justify-content: center;
+  background: linear-gradient(135deg, #8368f0 2%, #4ebafd 80%, #52edf8 95%);
+
+  border: 1px solid black;
+  align-items: center;
+}
