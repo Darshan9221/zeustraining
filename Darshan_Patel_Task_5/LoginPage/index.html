@@ -4,93 +4,126 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Task 5 - Login Page</title>
+    <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <nav class="navbar">
-      <img src="../images/header.png" alt="header" />
-      <img src="../icons/header_logo.svg" alt="header logo" />
-    </nav>
-    <div class="container">
-      <div class="login_card">
-        <div class="login_card_header">
-          <img src="../icons/back.svg" alt="back arrow" />
-          <p class="login_header_text">Log in with Quantum</p>
+    <div class="body_container">
+      <nav class="navbar" style="padding-left: 24px">
+        <div class="navbar-content">
+          <img
+            class="navbar-icon"
+            src="../icons/header_logo.svg"
+            alt="header logo"
+          />
         </div>
-        <div class="login_radio">
-          <div class="radio_option">
-            <img src="../icons/radio-button-on.svg" alt="radio button" />
-            <p class="radio_option_content">District</p>
-          </div>
-          <div class="radio_option">
-            <img src="../icons/radio-button-off.svg" alt="radio button" />
-            <p class="radio_option_content">Independent School</p>
-          </div>
-        </div>
-        <div class="dropdown_container">
-          <div class="dropdown_input">
-            <span>
-              <label for="state">State*</label>
-              <img src="../icons/arrow-down.svg" alt=""
-            /></span>
+      </nav>
+      <div class="container">
+        <div class="login_card">
+          <form action="#">
+            <div class="login_card_container">
+              <div class="login_card_header">
+                <div class="back_arrow_container">
+                  <img
+                    class="back_arrow"
+                    src="../icons/back.svg"
+                    alt="back arrow"
+                  />
+                </div>
+                <div class="login_header_textcontainer">
+                  <p class="login_header_text">Log in with Quantum</p>
+                </div>
+              </div>
+              <div class="login_radio">
+                <div class="radio_option">
+                  <img
+                    class="radio_img"
+                    src="../icons/radio-button-on.svg"
+                    alt="radio button"
+                  />
+                  <p class="radio_option_content">District</p>
+                </div>
+                <div class="radio_option">
+                  <img
+                    class="radio_img"
+                    src="../icons/radio-button-off.svg"
+                    alt="radio button"
+                  />
+                  <p class="radio_option_content">Independent School</p>
+                </div>
+              </div>
+              <div class="dropdown_container">
+                <div class="dropdown_input">
+                  <label for="state">State*</label><br />
 
-            <select name="state" id="state">
-              <option value="alabama">Alabama</option>
-              <option value="ohio">Ohio</option>
-            </select>
-          </div>
-          <div class="dropdown_input">
-            <span>
-              <label for="district">District*</label
-              ><img src="../icons/arrow-down.svg" alt=""
-            /></span>
+                  <div class="dropdown_options">
+                    <select name="state" id="state">
+                      <option value="alabama">Alabama</option>
+                      <option value="ohio">Ohio</option>
+                    </select>
+                    <img src="../icons/arrow-down.svg" alt="" />
+                  </div>
+                </div>
+                <div class="dropdown_input" style="padding-top: 36px">
+                  <label for="district">District*</label><br />
 
-            <select name="district" id="district">
-              <option value="alabama school district">
-                Alabama School District
-              </option>
-              <option value="ohio school district">Ohio School District</option>
-            </select>
-          </div>
-        </div>
+                  <div class="dropdown_options">
+                    <select name="district" id="district">
+                      <option value="alabama school district">
+                        Alabama School District
+                      </option>
+                      <option value="ohio school district">
+                        Ohio School District
+                      </option>
+                    </select>
+                    <img src="../icons/arrow-down.svg" alt="" />
+                  </div>
+                </div>
+              </div>
 
-        <div class="inputs_container">
-          <div class="username_container">
-            <input type="text" placeholder="Username/Email Id*" />
-            <p class="forgot_username">FORGOT USERNAME?</p>
-          </div>
-          <div class="password_container">
-            <div class="password_input">
-              <input type="text" placeholder="Password*" />
-              <img src="../icons/preview.svg" alt="" />
+              <div class="inputs_container">
+                <div class="username_block">
+                  <div class="username_container">
+                    <input type="text" placeholder="Username/Email Id*" />
+                  </div>
+                  <p class="forgot_username">FORGOT USERNAME?</p>
+                </div>
+
+                <div class="password_container">
+                  <div class="password_input">
+                    <input type="text" placeholder="Password*" />
+                    <img src="../icons/preview.svg" alt="" />
+                  </div>
+
+                  <p class="forgot_password">FORGOT PASSWORD?</p>
+                </div>
+              </div>
+
+              <div class="remember_me">
+                <img src="../icons/checkbox-checked.svg" alt="checkbox" />
+                <p class="remember_text">Remember Me</p>
+              </div>
+
+              <div class="submit_button">
+                <button type="submit">LOG IN</button>
+              </div>
             </div>
-
-            <p class="forgot_password">FORGOT PASSWORD?</p>
+          </form>
+        </div>
+      </div>
+      <div class="footer_container">
+        <div class="footer_links">
+          <a href="#">About</a>
+          <p>|</p>
+          <a href="#">Contact Us</a>
+        </div>
+        <div class="footer">
+          <img src="../icons/footer_logo.svg" alt="footer logo" />
+          <p>|</p>
+          <div class="footer_text_container">
+            <p class="footer_text">Copyright © 2020-2021</p>
+            <p class="footer_text">Zeus Systems Pvt. Ltd.</p>
+            <p class="footer_text">All rights reserved.</p>
           </div>
-        </div>
-
-        <div class="remember_me">
-          <img src="../icons/checkbox-checked.svg" alt="checkbox" />
-          <p class="remember_text">Remember Me</p>
-        </div>
-
-        <div class="submit_button">
-          <button type="submit">LOG IN</button>
-        </div>
-      </div>
-    </div>
-    <div class="footer_container">
-      <div class="footer_links">
-        <a href="#">About</a>
-        <p>|</p>
-        <a href="#">Contact Us</a>
-      </div>
-      <div class="footer">
-        <img src="../icons/footer_logo.svg" alt="footer logo" />
-        <p>|</p>
-        <div class="footer_text_container">
-          <p class="footer_text">Copyright © 2020-2021</p>
-          <p class="footer_text">Zeus Systems Pvt. Ltd.</p>
-          <p class="footer_text">All rights reserved.</p>
         </div>
       </div>
     </div>
