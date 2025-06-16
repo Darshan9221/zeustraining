@@ -7,16 +7,16 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
+    <nav class="navbar" style="padding-left: 24px; z-index: 2">
+      <div class="navbar-content">
+        <img
+          class="navbar-icon"
+          src="../icons/header_logo.svg"
+          alt="header logo"
+        />
+      </div>
+    </nav>
     <div class="body_container">
-      <nav class="navbar" style="padding-left: 24px">
-        <div class="navbar-content">
-          <img
-            class="navbar-icon"
-            src="../icons/header_logo.svg"
-            alt="header logo"
-          />
-        </div>
-      </nav>
       <div class="container">
         <div class="login_card">
           <form action="#">
@@ -30,7 +30,9 @@
                   />
                 </div>
                 <div class="login_header_textcontainer">
-                  <p class="login_header_text">Log in with Quantum</p>
+                  <p class="login_header_text" style="font-weight: 600">
+                    Log in with Quantum
+                  </p>
                 </div>
               </div>
               <div class="login_radio">
@@ -40,7 +42,9 @@
                     src="../icons/radio-button-on.svg"
                     alt="radio button"
                   />
-                  <p class="radio_option_content">District</p>
+                  <p class="radio_option_content" style="font-weight: 600">
+                    District
+                  </p>
                 </div>
                 <div class="radio_option">
                   <img
@@ -48,15 +52,18 @@
                     src="../icons/radio-button-off.svg"
                     alt="radio button"
                   />
-                  <p class="radio_option_content">Independent School</p>
+                  <p class="radio_option_content" style="font-weight: 600">
+                    Independent School
+                  </p>
                 </div>
               </div>
               <div class="dropdown_container">
                 <div class="dropdown_input">
-                  <label for="state">State*</label><br />
+                  <label style="font-weight: 600" for="state">State*</label
+                  ><br />
 
                   <div class="dropdown_options">
-                    <select name="state" id="state">
+                    <select style="font-weight: 600" name="state" id="state">
                       <option value="alabama">Alabama</option>
                       <option value="ohio">Ohio</option>
                     </select>
@@ -64,10 +71,16 @@
                   </div>
                 </div>
                 <div class="dropdown_input" style="padding-top: 36px">
-                  <label for="district">District*</label><br />
+                  <label style="font-weight: 600" for="district"
+                    >District*</label
+                  ><br />
 
                   <div class="dropdown_options">
-                    <select name="district" id="district">
+                    <select
+                      style="font-weight: 600"
+                      name="district"
+                      id="district"
+                    >
                       <option value="alabama school district">
                         Alabama School District
                       </option>
@@ -83,49 +96,74 @@
               <div class="inputs_container">
                 <div class="username_block">
                   <div class="username_container">
-                    <input type="text" placeholder="Username/Email Id*" />
+                    <input
+                      style="font-weight: 600"
+                      type="text"
+                      placeholder="Username/Email ID*"
+                    />
                   </div>
-                  <p class="forgot_username">FORGOT USERNAME?</p>
+                  <div class="forgot_username">
+                    <p style="font-weight: 600">FORGOT USERNAME?</p>
+                  </div>
                 </div>
 
                 <div class="password_container">
                   <div class="password_input">
-                    <input type="text" placeholder="Password*" />
+                    <input
+                      style="font-weight: 600"
+                      type="password"
+                      placeholder="Password*"
+                    />
                     <img src="../icons/preview.svg" alt="" />
                   </div>
 
-                  <p class="forgot_password">FORGOT PASSWORD?</p>
+                  <div class="forgot_password">
+                    <p style="font-weight: 600">FORGOT PASSWORD?</p>
+                  </div>
                 </div>
               </div>
 
               <div class="remember_me">
-                <img src="../icons/checkbox-checked.svg" alt="checkbox" />
-                <p class="remember_text">Remember Me</p>
+                <img
+                  class="checkbox_img"
+                  src="../icons/checkbox-checked.svg"
+                  alt="checkbox"
+                />
+                <p class="remember_text" style="font-weight: 600">
+                  Remember Me
+                </p>
               </div>
 
               <div class="submit_button">
-                <button type="submit">LOG IN</button>
+                <button style="font-weight: 600" type="submit">LOG IN</button>
               </div>
             </div>
           </form>
         </div>
       </div>
-      <div class="footer_container">
-        <div class="footer_links">
-          <a href="#">About</a>
-          <p>|</p>
-          <a href="#">Contact Us</a>
-        </div>
-        <div class="footer">
-          <img src="../icons/footer_logo.svg" alt="footer logo" />
-          <p>|</p>
-          <div class="footer_text_container">
-            <p class="footer_text">Copyright © 2020-2021</p>
-            <p class="footer_text">Zeus Systems Pvt. Ltd.</p>
-            <p class="footer_text">All rights reserved.</p>
-          </div>
+    </div>
+    <div class="footer_container">
+      <div class="footer_links">
+        <a href="#" style="font-weight: 600">About</a>
+        <p style="font-weight: 600">|</p>
+        <a style="font-weight: 600" href="#">Contact Us</a>
+      </div>
+      <div class="footer">
+        <img src="../icons/footer_logo.svg" alt="footer logo" />
+        <p style="color: #0000001f" style="font-weight: 600">|</p>
+        <div class="footer_text_container">
+          <p style="font-weight: 600" class="footer_text">
+            Copyright © 2020-2021
+          </p>
+          <p class="footer_text" style="font-weight: bold">
+            Zeus Systems Pvt. Ltd.
+          </p>
+          <p style="font-weight: 600" class="footer_text">
+            All rights reserved.
+          </p>
         </div>
       </div>
     </div>
   </body>
+  <script src="index.js"></script>
 </html>

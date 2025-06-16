@@ -65,39 +65,59 @@ const cardData = [
 function createCard(card) {
   return `
     <div class="card">
+    ${card.expired ? `<div class="expired-tag">EXPIRED</div>` : ""}
       <div class="card-header">
+      <div class="card-image-container">
+    
         <img class="card-image" src="${card.image}" alt="Card image" />
+      </div>
         <div>
-          <p class="card-title">${card.title}</p>
-          <div class="card-meta">
-            ${card.subject} | <span>${card.grade}</span>
-            <span class="card-grade">${card.gradePlus}</span>
+          <p class="card-title" style="font-weight: 600">${card.title}</p>
+          <div class="card-meta" style="font-weight: 600">
+            ${card.subject} | <span style="font-weight: 600">${
+    card.grade
+  }</span>
+            <span class="card-grade" style="font-weight: 600">${
+              card.gradePlus
+            }</span>
           </div>
-          <div class="card-units">
-            <b>${card.units}</b> Units <b>${card.lessons}</b> Lessons <b>${
-    card.topics
-  }</b> Topics
-          </div>
+          ${
+            card.units && card.topics && card.lessons
+              ? `<div class="card-units" style="font-weight: 600;color:#666666">
+            <b style="color:#222222;font-weight: 600;">${card.units}</b> Units <b style="color:#222222;font-weight: 600;">${card.lessons}</b> Lessons <b style="color:#222222;font-weight: 600;">${card.topics}</b> Topics
+          </div>`
+              : ""
+          }
+          
+          ${
+            card.starred
+              ? `<img class="card-star" src="../icons/favourite.svg" alt="star" />`
+              : ""
+          }
+       <div class="dropdown_input_2">
+                <div class="dropdown_options_2">
+                  <select
+                    style="font-weight: 600;"
+                    name="teacher"
+                    id="teacher"
+                  >
+                    <option value="course name">${card.teacher}</option>
+                    <option value="duration">Test</option>
+                  </select>
+                  <img src="../icons/arrow-down.svg" alt="" />
+                </div>
+              </div>        <div class="card-meta" style="font-weight: 600;color:#666666;font-size:12px">
+        ${card.students ? `${card.students} Students` : ""} ${
+    card.start && card.end ? `| ${card.start} - ${card.end}` : ""
+  }
         </div>
-        ${
-          card.starred
-            ? `<img class="card-star" src="../icons/favourite.svg" alt="star" />`
-            : ""
-        }
-      </div>
-      <div class="card-dropdown">
-        ${
-          card.teacher
-        } <img src="../icons/arrow-down.svg" style="width:16px;vertical-align:middle;" />
-      </div>
-      <div class="card-meta">
-        ${card.students} Students | ${card.start} - ${card.end}
-      </div>
-      <div class="card-footer">
-        <img class="card-footer-icon" src="../icons/preview.svg" alt="eye" />
-        <img class="card-footer-icon" src="../icons/calendar.svg" alt="calendar" />
-        <img class="card-footer-icon" src="../icons/grade.svg" alt="star" />
-        <img class="card-footer-icon" src="../icons/reports.svg" alt="chart" />
+        </div>
+        </div>
+      <div class="card-footer" style=" width: 428px;">
+        <img class="card-footer-icon" style="margin-left:24px" src="../icons/preview.svg" alt="eye" />
+        <img class="card-footer-icon" style="width:18px;height:20px;" src="../icons/calendar.svg" alt="calendar" />
+        <img class="card-footer-icon" style="width:18px;height:20px;" src="../icons/grade.svg" alt="star" />
+        <img class="card-footer-icon" style="margin-right:24px" src="../icons/reports.svg" alt="chart" />
       </div>
     </div>
   `;

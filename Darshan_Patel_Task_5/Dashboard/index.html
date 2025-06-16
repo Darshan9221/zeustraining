@@ -11,56 +11,146 @@
     <!-- Navbar -->
     <div class="nav_container">
       <div class="nav_content">
-        <img src="../images/header.png" alt="header " />
-        <div class="nav_logo">
-          <img src="../icons/header_logo.svg" alt="header logo" />
-        </div>
-        <div class="nav_elements">
-          <div class="menu">
-            <div class="menu-item">DASHBOARD</div>
-            <div class="menu-item">CONTENT</div>
-            <div class="menu-item">USERS</div>
-            <div class="menu-item">REPORTS</div>
-            <div class="menu-item">ADMIN</div>
-          </div>
-
-          <!-- Right Icons & Profile -->
-          <div class="right-icons">
-            <div class="icon-box">
-              <img src="../icons/alerts.svg" alt="" />
-              <div class="badge">2</div>
-            </div>
-            <div class="icon-box">
-              <img src="../icons/announcements.svg" alt="" />
-              <div class="badge">1</div>
-            </div>
+        <nav class="navbar" style="padding-left: 24px; z-index: 2">
+          <div class="navbar-content">
             <img
-              src="../icons/account_circle.svg"
-              alt="Profile"
-              class="profile-img"
+              class="navbar-icon"
+              src="../icons/header_logo.svg"
+              alt="header logo"
             />
           </div>
-        </div>
+          <div class="nav-texts">
+            <div class="navbar-texts">
+              <a href="#"
+                ><div class="nav-content-text active">DASHBOARD</div></a
+              >
+              <a href="#"><div class="nav-content-text">CONTENT</div></a>
+              <a href="#"><div class="nav-content-text">USERS</div></a>
+              <a href="#"><div class="nav-content-text">REPORTS</div></a>
+              <a href="#"><div class="nav-content-text">ADMIN</div></a>
+            </div>
+            <div class="nav-links">
+              <div class="nav-icon-content">
+                <img src="../icons/alerts.svg" alt="alerts" />
+                <div class="top-circle">2</div>
+              </div>
+              <div class="nav-icon-content">
+                <img src="../icons/announcements.svg" alt="alerts" />
+                <div class="top-circle">1</div>
+              </div>
+              <div class="nav-icon-content">
+                <img src="../icons/account_circle.svg" alt="alerts" />
+                <div class="top-circle">2</div>
+              </div>
+            </div>
+          </div>
+        </nav>
       </div>
     </div>
+    <div class="body_container">
+      <!-- Cards -->
+      <div class="main_container" style="max-width: 976px; margin: 0 50px">
+        <div class="tabs_container">
+          <div class="green_tabs">
+            <div class="box_content" style="border-bottom: 4px solid #222222">
+              <div class="img_container">
+                <img src="../icons/courses.svg" alt="courses" />
+              </div>
+              <div class="box_total_text">
+                <div class="box_number" style="font-weight: bold">4</div>
+                <div class="box_text">
+                  <p class="box_text" style="font-weight: 600">Courses</p>
+                </div>
+              </div>
+            </div>
+            <div class="box_content">
+              <div class="img_container">
+                <img src="../icons/classes.svg" alt="classes" />
+              </div>
 
-    <!-- Cards -->
-    <div id="cards-container"></div>
+              <div class="box_total_text">
+                <div class="box_number" style="font-weight: bold">4</div>
+                <div class="box_text">
+                  <p class="box_text" style="font-weight: 600">Classes</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="showing_tabs">
+            <div class="showing_of_container">
+              <div class="p_showing_of_content">
+                <p style="color: #686868; font-size: 12px; font-weight: 600">
+                  Showing 4 of 4 courses
+                </p>
+              </div>
+            </div>
+            <div class="sort_by_container">
+              <div
+                class="sort_by_text"
+                style="
+                  color: #686868;
+                  font-size: 12px;
+                  font-weight: 600;
+                  margin-right: 6px;
+                "
+              >
+                Sort By:
+              </div>
+              <div class="dropdown_input">
+                <div class="dropdown_options">
+                  <select
+                    style="font-weight: 600"
+                    name="district"
+                    id="district"
+                  >
+                    <option value="course name">Course Name</option>
+                    <option value="duration">Duration</option>
+                  </select>
+                  <img src="../icons/arrow-down.svg" alt="" />
+                </div>
+              </div>
+              <div class="up_arrow" style="margin-left: 24px">
+                <img src="../icons/sort.svg" alt="sort" />
+              </div>
+            </div>
+          </div>
+        </div>
 
-    <!-- Footer -->
+        <div
+          id="cards-container"
+          style="
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            max-width: 1056px;
+            gap: 24px;
+            margin-bottom: 32px;
+          "
+        ></div>
+      </div>
+
+      <!-- Footer -->
+    </div>
     <div class="footer_container">
       <div class="footer_links">
-        <a href="#">About</a>
-        <p>|</p>
-        <a href="#">Contact Us</a>
+        <a href="#" style="font-weight: 600">About</a>
+        <p style="font-weight: 600">|</p>
+        <a style="font-weight: 600" href="#">Contact Us</a>
       </div>
       <div class="footer">
         <img src="../icons/footer_logo.svg" alt="footer logo" />
-        <p>|</p>
+        <p style="color: #0000001f" style="font-weight: 600">|</p>
         <div class="footer_text_container">
-          <p class="footer_text">Copyright © 2020-2021</p>
-          <p class="footer_text">Zeus Systems Pvt. Ltd.</p>
-          <p class="footer_text">All rights reserved.</p>
+          <p style="font-weight: 600" class="footer_text">
+            Copyright © 2020-2021
+          </p>
+          <p class="footer_text" style="font-weight: bold">
+            Zeus Systems Pvt. Ltd.
+          </p>
+          <p style="font-weight: 600" class="footer_text">
+            All rights reserved.
+          </p>
         </div>
       </div>
     </div>
