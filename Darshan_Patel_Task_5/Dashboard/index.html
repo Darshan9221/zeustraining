@@ -21,26 +21,100 @@
           </div>
           <div class="nav-texts">
             <div class="navbar-texts">
-              <a href="#"
-                ><div class="nav-content-text active">DASHBOARD</div></a
-              >
-              <a href="#"><div class="nav-content-text">CONTENT</div></a>
-              <a href="#"><div class="nav-content-text">USERS</div></a>
-              <a href="#"><div class="nav-content-text">REPORTS</div></a>
-              <a href="#"><div class="nav-content-text">ADMIN</div></a>
+              <div class="nav-content-text-container active">
+                <a href="#"><div class="nav-content-text">DASHBOARD</div></a>
+              </div>
+              <div class="nav-content-text-container">
+                <a href="#"><div class="nav-content-text">CONTENT</div></a>
+              </div>
+              <div class="nav-content-text-container">
+                <a href="#"><div class="nav-content-text">USERS</div></a>
+              </div>
+              <div class="nav-content-text-container">
+                <a href="#"><div class="nav-content-text">REPORTS</div></a>
+              </div>
+              <div class="nav-content-text-container">
+                <a href="#"><div class="nav-content-text">ADMIN</div></a>
+              </div>
             </div>
             <div class="nav-links">
               <div class="nav-icon-content">
                 <img src="../icons/alerts.svg" alt="alerts" />
                 <div class="top-circle">2</div>
+                <div class="announcements-modal">
+                  <div class="main-container" id="alert-card-list"></div>
+                  <div class="announcement-modal-button-container">
+                    <div class="announcement-modal-button">
+                      <div class="show-all">SHOW ALL</div>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div class="nav-icon-content">
-                <img src="../icons/announcements.svg" alt="alerts" />
-                <div class="top-circle">1</div>
+              <div class="nav-icon-content-2">
+                <img src="../icons/announcements.svg" alt="announcements" />
+                <div class="top-circle-2">1</div>
+                <div class="announcements-modal">
+                  <div class="main-container" id="card-list"></div>
+                  <div class="announcement-modal-button-container">
+                    <div class="announcement-modal-button">
+                      <div class="show-all">SHOW ALL</div>
+                      <div class="show-all">CREATE NEW</div>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div class="nav-icon-content">
-                <img src="../icons/account_circle.svg" alt="alerts" />
-                <div class="top-circle">2</div>
+              <div class="nav-icon-content-3">
+                <img src="../icons/account_circle.svg" alt="profile" />
+                <div class="top-circle-3">T</div>
+              </div>
+            </div>
+            <div class="hamburger-menu">
+              <img src="../icons/hamburger-menu.svg" alt="menu" />
+              <div class="hover-container">
+                <div class="hover-content">
+                  <div
+                    class="hover-content-items"
+                    style="padding: 15px 24px 15px 16px"
+                  >
+                    <div class="nav-content-text">DASHBOARD</div>
+                  </div>
+                  <div class="hover-content-items">
+                    <div class="hover-content-item-contents">
+                      <div class="nav-content-text">CONTENT</div>
+                      <img src="../icons/arrow-down.svg" alt="arrow-down" />
+                    </div>
+                    <div class="inner-hover-content">
+                      <div class="nav-content-text">COURSE CATALOG</div>
+                    </div>
+                  </div>
+                  <div class="hover-content-items">
+                    <div class="hover-content-item-contents">
+                      <div class="nav-content-text">USERS</div>
+                      <img src="../icons/arrow-down.svg" alt="arrow-down" />
+                    </div>
+                    <div class="inner-hover-content">
+                      <div class="nav-content-text">TEST</div>
+                    </div>
+                  </div>
+                  <div class="hover-content-items">
+                    <div class="hover-content-item-contents">
+                      <div class="nav-content-text">REPORTS</div>
+                      <img src="../icons/arrow-down.svg" alt="arrow-down" />
+                    </div>
+                    <div class="inner-hover-content">
+                      <div class="nav-content-text">TEST</div>
+                    </div>
+                  </div>
+                  <div class="hover-content-items">
+                    <div class="hover-content-item-contents">
+                      <div class="nav-content-text">ADMIN</div>
+                      <img src="../icons/arrow-down.svg" alt="arrow-down" />
+                    </div>
+                    <div class="inner-hover-content">
+                      <div class="nav-content-text">TEST</div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -49,15 +123,20 @@
     </div>
     <div class="body_container">
       <!-- Cards -->
-      <div class="main_container" style="max-width: 976px; margin: 0 50px">
+      <div class="main_container" style="max-width: 976px; margin: 0 24px">
         <div class="tabs_container">
           <div class="green_tabs">
-            <div class="box_content" style="border-bottom: 4px solid #222222">
+            <div class="box_content active">
               <div class="img_container">
                 <img src="../icons/courses.svg" alt="courses" />
               </div>
               <div class="box_total_text">
-                <div class="box_number" style="font-weight: bold">4</div>
+                <div
+                  class="box_number"
+                  style="font-weight: bold; margin-right: 8px"
+                >
+                  4
+                </div>
                 <div class="box_text">
                   <p class="box_text" style="font-weight: 600">Courses</p>
                 </div>
@@ -98,11 +177,7 @@
               </div>
               <div class="dropdown_input">
                 <div class="dropdown_options">
-                  <select
-                    style="font-weight: 600"
-                    name="district"
-                    id="district"
-                  >
+                  <select style="font-weight: 600" name="course" id="course">
                     <option value="course name">Course Name</option>
                     <option value="duration">Duration</option>
                   </select>
