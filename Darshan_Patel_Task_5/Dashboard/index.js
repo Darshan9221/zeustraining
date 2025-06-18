@@ -45,7 +45,8 @@ const cardData = [
   },
   {
     image: "../images/imageMask-3.png",
-    title: "Introduction to Biology: Micro organisms and how they affect...",
+    title:
+      "Introduction to Biology: Micro organisms and how they affect our day to day lives",
     subject: "Biology",
     grade: "Grade 4",
     gradePlus: "+1",
@@ -418,7 +419,7 @@ const alertData = [
   },
   {
     message:
-      "License for Basic Concepts in Geometry has been assigned to your...",
+      "License for Basic Concepts in Geometry has been assigned to your workspace",
     tick: false,
     date: "15-Sep-2018",
     time: "07:21 pm",
@@ -439,7 +440,7 @@ const alertData = [
   },
   {
     message:
-      "License for Basic Concepts in Geometry has been assigned to your...",
+      "License for Basic Concepts in Geometry has been assigned to your workspace",
     tick: false,
     date: "15-Sep-2018",
     time: "07:21 pm",
