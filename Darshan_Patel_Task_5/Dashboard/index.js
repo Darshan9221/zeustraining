@@ -321,7 +321,7 @@ function renderCard(entry) {
         <p class="author-name">${entry.pa}</p>
       </div>
       <img src="${
-        entry.tick ? "../icons/green-tick.svg" : "../icons/minus-circle.jpg"
+        entry.tick ? "../icons/green-tick.svg" : "../icons/minus-circle.svg"
       }" alt="tick" />
     </div>
     <div class="card-item-main-text-container">
@@ -357,6 +357,23 @@ function renderCard(entry) {
   return container;
 }
 
+function updateNotificationCount(type) {
+  const topCircle =
+    type === "alert"
+      ? document.querySelector(".top-circle")
+      : document.querySelector(".top-circle-2");
+
+  const container =
+    type === "alert"
+      ? document.getElementById("alert-card-list")
+      : document.getElementById("card-list");
+
+  const unmarkedCount = container.querySelectorAll(
+    ".card-item-element-container:not(.marked)"
+  ).length;
+  topCircle.textContent = unmarkedCount;
+}
+
 function loadCards() {
   const list = document.getElementById("card-list");
   if (!list) return;
@@ -364,20 +381,47 @@ function loadCards() {
   data.forEach((entry) => {
     const card = renderCard(entry);
     const tickIcon = card.querySelector(
-      'img[src*="green-tick.svg"], img[src*="minus-circle.jpg"]'
+      'img[src*="green-tick.svg"], img[src*="minus-circle.svg"]'
     );
     if (tickIcon) {
       tickIcon.addEventListener("click", function () {
         const currentlyShowingMinusCircle =
-          this.src.includes("minus-circle.jpg");
+          this.src.includes("minus-circle.svg");
         this.src = currentlyShowingMinusCircle
           ? "../icons/green-tick.svg"
-          : "../icons/minus-circle.jpg";
+          : "../icons/minus-circle.svg";
         card.classList.toggle("marked", currentlyShowingMinusCircle);
+        updateNotificationCount("announcement");
       });
     }
     list.appendChild(card);
   });
+  updateNotificationCount("announcement");
+}
+
+function loadAlertCards() {
+  const list = document.getElementById("alert-card-list");
+  if (!list) return;
+
+  alertData.forEach((entry) => {
+    const card = renderAlertsCard(entry);
+    const tickIcon = card.querySelector(
+      'img[src*="green-tick.svg"], img[src*="minus-circle.svg"]'
+    );
+    if (tickIcon) {
+      tickIcon.addEventListener("click", function () {
+        const currentlyShowingMinusCircle =
+          this.src.includes("minus-circle.svg");
+        this.src = currentlyShowingMinusCircle
+          ? "../icons/green-tick.svg"
+          : "../icons/minus-circle.svg";
+        card.classList.toggle("marked", currentlyShowingMinusCircle);
+        updateNotificationCount("alert");
+      });
+    }
+    list.appendChild(card);
+  });
+  updateNotificationCount("alert");
 }
 
 function showAll() {
@@ -465,7 +509,7 @@ function renderAlertsCard(entry) {
       </div>
       <div class="tick-container">
         <img src="${
-          entry.tick ? "../icons/green-tick.svg" : "../icons/minus-circle.jpg"
+          entry.tick ? "../icons/green-tick.svg" : "../icons/minus-circle.svg"
         }" alt="tick" />
       </div>
     </div>
@@ -506,20 +550,22 @@ function loadAlertCards() {
   alertData.forEach((entry) => {
     const card = renderAlertsCard(entry);
     const tickIcon = card.querySelector(
-      'img[src*="green-tick.svg"], img[src*="minus-circle.jpg"]'
+      'img[src*="green-tick.svg"], img[src*="minus-circle.svg"]'
     );
     if (tickIcon) {
       tickIcon.addEventListener("click", function () {
         const currentlyShowingMinusCircle =
-          this.src.includes("minus-circle.jpg");
+          this.src.includes("minus-circle.svg");
         this.src = currentlyShowingMinusCircle
           ? "../icons/green-tick.svg"
-          : "../icons/minus-circle.jpg";
+          : "../icons/minus-circle.svg";
         card.classList.toggle("marked", currentlyShowingMinusCircle);
+        updateNotificationCount("alert");
       });
     }
     list.appendChild(card);
   });
+  updateNotificationCount("alert");
 }
 
 window.onload = function () {

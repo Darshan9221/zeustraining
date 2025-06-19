@@ -686,7 +686,6 @@ body {
 
 .card-item-header img {
   width: 15px;
-  height: 18px;
   cursor: pointer;
   filter: none !important;
   opacity: 1;
@@ -733,10 +732,10 @@ body {
   position: fixed;
   display: flex;
   width: 319px;
-  padding: 15px 0;
   box-shadow: 0 2px 8px #0002;
   background-color: #ffffff;
   border-radius: 0 0 2px 2px;
+  height: 48px;
 }
 
 .course-container {
@@ -746,14 +745,21 @@ body {
 }
 
 .announcement-modal-button {
-  gap: 41px;
   display: flex;
   justify-content: center;
+
   width: 100%;
   align-items: center;
   font-size: 14px;
   color: #1f7a54;
   font-weight: 600;
+  margin: 10px 0;
+}
+
+.show-all {
+  height: 100%;
+  display: flex;
+  align-items: center;
 }
 
 .course-text-static {
@@ -761,7 +767,6 @@ body {
 }
 
 .pin-img-container {
-  width: 7px;
   height: 10px;
 }
 
