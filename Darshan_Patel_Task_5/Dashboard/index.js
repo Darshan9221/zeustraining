@@ -10,7 +10,7 @@ const cardData = [
     topics: 24,
     teacher: "Mr. Frank's Class B",
     students: 50,
-    start: "21-Jan-2020",
+    start: "&nbsp&nbsp21-Jan-2020",
     end: "21-Aug-2020",
     starred: true,
     dropdown_disabled: false,
@@ -46,7 +46,7 @@ const cardData = [
   {
     image: "../images/imageMask-3.png",
     title:
-      "Introduction to Biology: Micro organisms and how they affect our day to day lives",
+      "Introduction to Biology: Micro organisms and how they affect Life Systems in Engineering Sciences",
     subject: "Biology",
     grade: "Grade 4",
     gradePlus: "+1",
@@ -77,7 +77,7 @@ const cardData = [
     topics: "",
     teacher: "Mr. Frank's Class A",
     students: 44,
-    start: "14-Oct-2019",
+    start: "&nbsp&nbsp14-Oct-2019",
     end: "20-Oct-2020",
     starred: false,
     expired: true,
@@ -102,11 +102,13 @@ function createCard(card) {
       </div>
         <div>
           <p class="card-title" style="font-weight: 600">${card.title}</p>
-          <div class="card-meta" style="font-weight: 600">
-            ${card.subject} | <span style="font-weight: 600">${
+          <div class="card-meta" style="font-weight: 400">
+            <span style="font-weight: 600;margin-right: 5px;">${
+              card.subject
+            }</span> | <span style="font-weight: 600;margin-left: 5px;">${
     card.grade
   }</span>
-            <span class="card-grade" style="font-weight: 600">${
+            <span class="card-grade" style="font-weight: 600;margin-left:0;">${
               card.gradePlus
             }</span>
           </div>
@@ -137,8 +139,8 @@ function createCard(card) {
                   <img src="../icons/arrow-down.svg" style="bottom:0;" alt="" />
                 </div>
               </div>        <div class="card-meta" style="font-weight: 600;color:#666666;font-size:12px">
-        ${card.students ? `${card.students} Students` : ""} ${
-    card.start && card.end ? `| ${card.start} - ${card.end}` : ""
+        ${card.students ? `${card.students} Students&nbsp&nbsp` : ""} ${
+    card.start && card.end ? ` |  ${card.start} - ${card.end}` : ""
   }
         </div>
         </div>
@@ -232,6 +234,55 @@ document.addEventListener("DOMContentLoaded", function () {
       star.classList.toggle("disabled");
     });
   });
+});
+
+// --- Keep nav-icon-content-2 icon white when modal is hovered ---
+document.addEventListener("DOMContentLoaded", function () {
+  var navIcon2 = document.querySelector(".nav-icon-content-2");
+  var modal2 = navIcon2 ? navIcon2.querySelector(".announcements-modal") : null;
+  var icon2 = navIcon2 ? navIcon2.querySelector("img") : null;
+  if (navIcon2 && modal2 && icon2) {
+    function setActive() {
+      navIcon2.classList.add("modal-hover");
+    }
+    function unsetActive() {
+      navIcon2.classList.remove("modal-hover");
+    }
+    navIcon2.addEventListener("mouseenter", setActive);
+    navIcon2.addEventListener("mouseleave", function (e) {
+      // Only remove if not hovering modal
+      if (!modal2.matches(":hover")) unsetActive();
+    });
+    modal2.addEventListener("mouseenter", setActive);
+    modal2.addEventListener("mouseleave", function (e) {
+      // Only remove if not hovering icon
+      if (!navIcon2.matches(":hover")) unsetActive();
+    });
+  }
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+  var hamburger = document.querySelector(".hamburger-menu");
+  var hoverContainer = hamburger
+    ? hamburger.querySelector(".hover-container")
+    : null;
+  var icon = hamburger ? hamburger.querySelector("img") : null;
+  if (hamburger && hoverContainer && icon) {
+    function setActive() {
+      hamburger.classList.add("menu-hover");
+    }
+    function unsetActive() {
+      hamburger.classList.remove("menu-hover");
+    }
+    hamburger.addEventListener("mouseenter", setActive);
+    hamburger.addEventListener("mouseleave", function () {
+      if (!hoverContainer.matches(":hover")) unsetActive();
+    });
+    hoverContainer.addEventListener("mouseenter", setActive);
+    hoverContainer.addEventListener("mouseleave", function () {
+      if (!hamburger.matches(":hover")) unsetActive();
+    });
+  }
 });
 
 // Announcements modal

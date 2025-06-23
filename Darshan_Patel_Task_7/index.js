@@ -66,6 +66,7 @@ class DraggableDiv {
       "lostpointercapture",
       this.handlePointerUp.bind(this)
     );
+    window.addEventListener("resize", this.handleResize.bind(this));
   }
 
   handlePointerDown(e) {
@@ -99,6 +100,17 @@ class DraggableDiv {
   handlePointerUp() {
     this.isDragging = false;
     this.element.style.cursor = "grab";
+  }
+
+  handleResize() {
+    const bounds = this.parent.getBounds();
+    const maxX = bounds.width - this.element.offsetWidth;
+    const maxY = bounds.height - this.element.offsetHeight;
+
+    this.xOffset = this.currentX = Math.min(Math.max(this.currentX, 0), maxX);
+    this.yOffset = this.currentY = Math.min(Math.max(this.currentY, 0), maxY);
+
+    this.updatePosition();
   }
 
   updatePosition() {
@@ -148,6 +160,7 @@ class DraggableDiv2 {
       "lostpointercapture",
       this.handlePointerUp.bind(this)
     );
+    window.addEventListener("resize", this.handleResize.bind(this));
   }
 
   handlePointerDown(e) {
@@ -181,6 +194,17 @@ class DraggableDiv2 {
   handlePointerUp() {
     this.isDragging = false;
     this.element.style.cursor = "grab";
+  }
+
+  handleResize() {
+    const bounds = this.parent.getBounds();
+    const maxX = bounds.width - this.element.offsetWidth;
+    const maxY = bounds.height - this.element.offsetHeight;
+
+    this.xOffset = this.currentX = Math.min(Math.max(this.currentX, 0), maxX);
+    this.yOffset = this.currentY = Math.min(Math.max(this.currentY, 0), maxY);
+
+    this.updatePosition();
   }
 
   updatePosition() {
