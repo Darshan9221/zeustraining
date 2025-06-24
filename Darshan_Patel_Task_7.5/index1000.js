@@ -51,7 +51,6 @@ class BackgroundDiv {
   }
 
   createSections() {
-    // Remove old sections
     this.sections.forEach((sec) => this.element.removeChild(sec.element));
     this.sections = [];
     document.querySelectorAll(".draggable").forEach((el) => el.remove());
@@ -59,17 +58,14 @@ class BackgroundDiv {
     const sectionHeight = 500;
     const sectionWidth = 300;
     const totalBoxes = 1000;
-    // Calculate columns to fit horizontally in viewport, but at least 1
     const viewportWidth = window.innerWidth;
     const cols = Math.max(1, Math.floor(viewportWidth / sectionWidth));
     const rows = Math.ceil(totalBoxes / cols);
-    // Set the scrollable area size
     this.element.style.width = "100vw";
     this.element.style.height = "100vh";
     this.element.style.position = "fixed";
     this.element.style.overflow = "auto";
     this.element.style.backgroundColor = "#f0f0f0";
-    // Set a large inner container for absolute positioning
     if (!this.inner) {
       this.inner = document.createElement("div");
       this.element.appendChild(this.inner);
@@ -77,7 +73,6 @@ class BackgroundDiv {
     this.inner.style.position = "relative";
     this.inner.style.width = `${cols * sectionWidth}px`;
     this.inner.style.height = `${rows * sectionHeight}px`;
-    // Remove old sections from inner
     while (this.inner.firstChild) this.inner.removeChild(this.inner.firstChild);
     this.sections = [];
     for (let i = 0; i < totalBoxes; i++) {
@@ -94,7 +89,6 @@ class BackgroundDiv {
       );
       this.sections.push(section);
     }
-    // Add draggable divs to each section
     this.sections.forEach((section) => {
       new DraggableDiv(section, true);
     });
@@ -140,7 +134,6 @@ class DraggableDiv {
   }
 
   centerInSection() {
-    // Center the draggable div in its section
     const bounds = this.parent.getBounds();
     const centerX = (bounds.width - this.element.offsetWidth) / 2;
     const centerY = (bounds.height - this.element.offsetHeight) / 2;
