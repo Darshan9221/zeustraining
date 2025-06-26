@@ -11,154 +11,152 @@
   <body>
     <!-- Navbar -->
     <div class="nav_container">
-      <div class="nav_content">
-        <nav class="navbar" style="padding-left: 24px; z-index: 2">
-          <div class="navbar-content">
-            <img
-              class="navbar-icon"
-              src="../icons/header_logo.svg"
-              alt="header logo"
-            />
+      <nav class="navbar" style="padding-left: 24px; z-index: 2">
+        <div class="navbar-content">
+          <img
+            class="navbar-icon"
+            src="../icons/header_logo.svg"
+            alt="header logo"
+          />
+        </div>
+        <div class="nav-texts">
+          <div class="navbar-texts">
+            <div class="nav-content-text-container active">
+              <a href="#"><div class="nav-content-text">DASHBOARD</div></a>
+            </div>
+            <div class="nav-content-text-container">
+              <a href="#"><div class="nav-content-text">CONTENT</div></a>
+            </div>
+            <div class="nav-content-text-container">
+              <a href="#"><div class="nav-content-text">USERS</div></a>
+            </div>
+            <div class="nav-content-text-container">
+              <a href="#"><div class="nav-content-text">REPORTS</div></a>
+            </div>
+            <div class="nav-content-text-container">
+              <a href="#"><div class="nav-content-text">ADMIN</div></a>
+            </div>
           </div>
-          <div class="nav-texts">
-            <div class="navbar-texts">
-              <div class="nav-content-text-container active">
-                <a href="#"><div class="nav-content-text">DASHBOARD</div></a>
-              </div>
-              <div class="nav-content-text-container">
-                <a href="#"><div class="nav-content-text">CONTENT</div></a>
-              </div>
-              <div class="nav-content-text-container">
-                <a href="#"><div class="nav-content-text">USERS</div></a>
-              </div>
-              <div class="nav-content-text-container">
-                <a href="#"><div class="nav-content-text">REPORTS</div></a>
-              </div>
-              <div class="nav-content-text-container">
-                <a href="#"><div class="nav-content-text">ADMIN</div></a>
+          <div class="nav-links">
+            <div class="nav-icon-content">
+              <img src="../icons/alerts.svg" alt="alerts" />
+              <div class="top-circle">2</div>
+              <div class="announcements-modal">
+                <div class="main-container" id="alert-card-list"></div>
+                <div class="announcement-modal-button-container">
+                  <div class="announcement-modal-button">
+                    <div class="show-all">SHOW ALL</div>
+                  </div>
+                </div>
               </div>
             </div>
-            <div class="nav-links">
-              <div class="nav-icon-content">
-                <img src="../icons/alerts.svg" alt="alerts" />
-                <div class="top-circle">2</div>
-                <div class="announcements-modal">
-                  <div class="main-container" id="alert-card-list"></div>
-                  <div class="announcement-modal-button-container">
-                    <div class="announcement-modal-button">
-                      <div class="show-all">SHOW ALL</div>
+            <div class="nav-icon-content-2">
+              <img src="../icons/announcements.svg" alt="announcements" />
+              <div class="top-circle-2">1</div>
+              <div class="announcements-modal">
+                <div class="main-container" id="card-list"></div>
+                <div class="announcement-modal-button-container">
+                  <div class="announcement-modal-button">
+                    <div
+                      class="show-all"
+                      style="
+                        padding-right: 45px;
+                        border-right: 1px solid rgb(212, 212, 212, 0.8);
+                      "
+                    >
+                      SHOW ALL
+                    </div>
+                    <div class="show-all" style="margin-left: 37px">
+                      CREATE NEW
                     </div>
                   </div>
                 </div>
               </div>
-              <div class="nav-icon-content-2">
-                <img src="../icons/announcements.svg" alt="announcements" />
-                <div class="top-circle-2">1</div>
-                <div class="announcements-modal">
-                  <div class="main-container" id="card-list"></div>
-                  <div class="announcement-modal-button-container">
-                    <div class="announcement-modal-button">
-                      <div
-                        class="show-all"
-                        style="
-                          padding-right: 45px;
-                          border-right: 1px solid rgb(212, 212, 212, 0.8);
-                        "
-                      >
-                        SHOW ALL
-                      </div>
-                      <div class="show-all" style="margin-left: 37px">
-                        CREATE NEW
-                      </div>
+            </div>
+            <div class="nav-icon-content-3">
+              <img src="../icons/account_circle.svg" alt="profile" />
+              <div class="top-circle-3">T</div>
+            </div>
+          </div>
+          <div class="hamburger-menu">
+            <img src="../icons/hamburger-menu.svg" alt="menu" />
+            <div class="hover-container">
+              <div class="hover-content">
+                <div
+                  class="hover-content-items"
+                  style="padding: 15px 24px 15px 16px"
+                >
+                  <div class="nav-content-text">DASHBOARD</div>
+                </div>
+                <div class="hover-content-items">
+                  <div class="hover-content-item-contents">
+                    <div class="nav-content-text">CONTENT</div>
+                    <div class="img-container">
+                      <img
+                        src="../icons/green-arrow-down.svg"
+                        alt="arrow-down"
+                      />
+                    </div>
+                  </div>
+                  <div class="inner-hover-content">
+                    <div class="nav-content-text" style="padding: 0 16px">
+                      COURSE CATALOG
                     </div>
                   </div>
                 </div>
-              </div>
-              <div class="nav-icon-content-3">
-                <img src="../icons/account_circle.svg" alt="profile" />
-                <div class="top-circle-3">T</div>
-              </div>
-            </div>
-            <div class="hamburger-menu">
-              <img src="../icons/hamburger-menu.svg" alt="menu" />
-              <div class="hover-container">
-                <div class="hover-content">
-                  <div
-                    class="hover-content-items"
-                    style="padding: 15px 24px 15px 16px"
-                  >
-                    <div class="nav-content-text">DASHBOARD</div>
-                  </div>
-                  <div class="hover-content-items">
-                    <div class="hover-content-item-contents">
-                      <div class="nav-content-text">CONTENT</div>
-                      <div class="img-container">
-                        <img
-                          src="../icons/green-arrow-down.svg"
-                          alt="arrow-down"
-                        />
-                      </div>
-                    </div>
-                    <div class="inner-hover-content">
-                      <div class="nav-content-text" style="padding: 0 16px">
-                        COURSE CATALOG
-                      </div>
+                <div class="hover-content-items">
+                  <div class="hover-content-item-contents">
+                    <div class="nav-content-text">USERS</div>
+                    <div class="img-container">
+                      <img
+                        src="../icons/green-arrow-down.svg"
+                        alt="arrow-down"
+                      />
                     </div>
                   </div>
-                  <div class="hover-content-items">
-                    <div class="hover-content-item-contents">
-                      <div class="nav-content-text">USERS</div>
-                      <div class="img-container">
-                        <img
-                          src="../icons/green-arrow-down.svg"
-                          alt="arrow-down"
-                        />
-                      </div>
-                    </div>
-                    <div class="inner-hover-content">
-                      <div class="nav-content-text" style="padding: 0 16px">
-                        TEST
-                      </div>
+                  <div class="inner-hover-content">
+                    <div class="nav-content-text" style="padding: 0 16px">
+                      TEST
                     </div>
                   </div>
-                  <div class="hover-content-items">
-                    <div class="hover-content-item-contents">
-                      <div class="nav-content-text">REPORTS</div>
-                      <div class="img-container">
-                        <img
-                          src="../icons/green-arrow-down.svg"
-                          alt="arrow-down"
-                        />
-                      </div>
-                    </div>
-                    <div class="inner-hover-content">
-                      <div class="nav-content-text" style="padding: 0 16px">
-                        TEST
-                      </div>
+                </div>
+                <div class="hover-content-items">
+                  <div class="hover-content-item-contents">
+                    <div class="nav-content-text">REPORTS</div>
+                    <div class="img-container">
+                      <img
+                        src="../icons/green-arrow-down.svg"
+                        alt="arrow-down"
+                      />
                     </div>
                   </div>
-                  <div class="hover-content-items">
-                    <div class="hover-content-item-contents">
-                      <div class="nav-content-text">ADMIN</div>
-                      <div class="img-container">
-                        <img
-                          src="../icons/green-arrow-down.svg"
-                          alt="arrow-down"
-                        />
-                      </div>
+                  <div class="inner-hover-content">
+                    <div class="nav-content-text" style="padding: 0 16px">
+                      TEST
                     </div>
-                    <div class="inner-hover-content">
-                      <div class="nav-content-text" style="padding: 0 16px">
-                        TEST
-                      </div>
+                  </div>
+                </div>
+                <div class="hover-content-items">
+                  <div class="hover-content-item-contents">
+                    <div class="nav-content-text">ADMIN</div>
+                    <div class="img-container">
+                      <img
+                        src="../icons/green-arrow-down.svg"
+                        alt="arrow-down"
+                      />
+                    </div>
+                  </div>
+                  <div class="inner-hover-content">
+                    <div class="nav-content-text" style="padding: 0 16px">
+                      TEST
                     </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </nav>
-      </div>
+        </div>
+      </nav>
     </div>
     <div class="body_container">
       <!-- Cards -->

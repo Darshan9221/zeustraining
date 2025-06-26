@@ -16,131 +16,113 @@
         />
       </div>
     </nav>
-    <div class="body_container">
-      <div class="container">
-        <div class="login_card">
-          <form action="/Dashboard/index.html">
-            <div class="login_card_container">
-              <div class="login_card_header">
-                <div class="back_arrow_container">
-                  <img
-                    class="back_arrow"
-                    src="../icons/back.svg"
-                    alt="back arrow"
-                  />
-                </div>
-                <div class="login_header_textcontainer">
-                  <p class="login_header_text" style="font-weight: 600">
-                    Log in with Quantum
-                  </p>
-                </div>
-              </div>
-              <div class="login_radio">
-                <div class="radio_option">
-                  <img
-                    class="radio_img"
-                    src="../icons/radio-button-on.svg"
-                    alt="radio button"
-                  />
-                  <p class="radio_option_content" style="font-weight: 600">
-                    District
-                  </p>
-                </div>
-                <div class="radio_option">
-                  <img
-                    class="radio_img"
-                    src="../icons/radio-button-off.svg"
-                    alt="radio button"
-                  />
-                  <p class="radio_option_content" style="font-weight: 600">
-                    Independent School
-                  </p>
-                </div>
-              </div>
-              <div class="dropdown_container">
-                <div class="dropdown_input">
-                  <label style="font-weight: 600" for="state">State*</label
-                  ><br />
-
-                  <div class="dropdown_options">
-                    <select style="font-weight: 600" name="state" id="state">
-                      <option value="alabama">Alabama</option>
-                      <option value="ohio">Ohio</option>
-                    </select>
-                    <img src="../icons/arrow-down.svg" alt="" />
-                  </div>
-                </div>
-                <div class="dropdown_input" style="padding-top: 36px">
-                  <label style="font-weight: 600" for="district"
-                    >District*</label
-                  ><br />
-
-                  <div class="dropdown_options">
-                    <select
-                      style="font-weight: 600"
-                      name="district"
-                      id="district"
-                    >
-                      <option value="alabama school district">
-                        Alabama School District
-                      </option>
-                      <option value="ohio school district">
-                        Ohio School District
-                      </option>
-                    </select>
-                    <img src="../icons/arrow-down.svg" alt="" />
-                  </div>
-                </div>
-              </div>
-
-              <div class="inputs_container">
-                <div class="username_block">
-                  <div class="username_container">
-                    <input
-                      style="font-weight: 600"
-                      type="text"
-                      placeholder="Username/Email ID*"
-                    />
-                  </div>
-                  <div class="forgot_username">
-                    <p style="font-weight: 600">FORGOT USERNAME?</p>
-                  </div>
-                </div>
-
-                <div class="password_container">
-                  <div class="password_input">
-                    <input
-                      style="font-weight: 600"
-                      type="password"
-                      placeholder="Password*"
-                    />
-                    <img src="../icons/preview.svg" alt="" />
-                  </div>
-
-                  <div class="forgot_password">
-                    <p style="font-weight: 600">FORGOT PASSWORD?</p>
-                  </div>
-                </div>
-              </div>
-
-              <div class="remember_me">
-                <img
-                  class="checkbox_img"
-                  src="../icons/checkbox-checked.svg"
-                  alt="checkbox"
-                />
-                <p class="remember_text" style="font-weight: 600">
-                  Remember Me
-                </p>
-              </div>
-
-              <div class="submit_button">
-                <button style="font-weight: 600" type="submit">LOG IN</button>
-              </div>
+    <div class="container">
+      <form action="/Dashboard/index.html" class="login-card">
+        <div class="login_card_header">
+          <div class="back_arrow_container">
+            <img class="back_arrow" src="../icons/back.svg" alt="back arrow" />
+          </div>
+          <div class="login_header_textcontainer">
+            <div class="login_header_text" style="font-weight: 600">
+              Log in with Quantum
             </div>
-          </form>
+          </div>
         </div>
-      </div>
+        <div class="login_radio">
+          <div class="radio_option">
+            <img
+              class="radio_img"
+              src="../icons/radio-button-on.svg"
+              alt="radio button"
+            />
+            <p class="radio_option_content" style="font-weight: 600">
+              District
+            </p>
+          </div>
+          <div class="radio_option">
+            <img
+              class="radio_img"
+              src="../icons/radio-button-off.svg"
+              alt="radio button"
+            />
+            <p class="radio_option_content" style="font-weight: 600">
+              Independent School
+            </p>
+          </div>
+        </div>
+        <div class="dropdown_container">
+          <div class="dropdown_input">
+            <label style="font-weight: 600" for="state">State*</label><br />
+
+            <div class="dropdown_options">
+              <select style="font-weight: 600" name="state" id="state">
+                <option value="alabama">Alabama</option>
+                <option value="ohio">Ohio</option>
+              </select>
+              <img src="../icons/arrow-down.svg" alt="" />
+            </div>
+          </div>
+          <div class="dropdown_input" style="padding-top: 36px">
+            <label style="font-weight: 600" for="district">District*</label
+            ><br />
+
+            <div class="dropdown_options">
+              <select style="font-weight: 600" name="district" id="district">
+                <option value="alabama school district">
+                  Alabama School District
+                </option>
+                <option value="ohio school district">
+                  Ohio School District
+                </option>
+              </select>
+              <img src="../icons/arrow-down.svg" alt="" />
+            </div>
+          </div>
+        </div>
+
+        <div class="inputs_container">
+          <div class="username_block">
+            <div class="username_container">
+              <input
+                style="font-weight: 600"
+                type="text"
+                placeholder="Username/Email ID*"
+              />
+            </div>
+            <div class="forgot_username">
+              <p style="font-weight: 600">FORGOT USERNAME?</p>
+            </div>
+          </div>
+
+          <div class="password_container">
+            <div class="password_input">
+              <input
+                style="font-weight: 600"
+                type="password"
+                placeholder="Password*"
+              />
+              <img src="../icons/preview.svg" alt="" />
+            </div>
+
+            <div class="forgot_password">
+              <p style="font-weight: 600">FORGOT PASSWORD?</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="remember_me">
+          <img
+            class="checkbox_img"
+            src="../icons/checkbox-checked.svg"
+            alt="checkbox"
+          />
+          <p class="remember_text" style="font-weight: 600">Remember Me</p>
+        </div>
+
+        <div class="submit_button">
+          <button style="font-weight: 600" type="submit">LOG IN</button>
+        </div>
+      </form>
     </div>
     <div class="footer_container">
       <div class="footer_links">

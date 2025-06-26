@@ -6,19 +6,15 @@
   font-family: quiksand;
 }
 
-.body_container {
-  height: 84vh;
-  padding-top: 56px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-}
-
 body {
   margin: 0;
   padding: 0;
   background-color: #eeeeee;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
 .navbar {
@@ -33,6 +29,7 @@ body {
   width: 100vw;
   position: fixed;
   border-bottom: 2px solid #31b9e4;
+  top: 0;
 }
 
 .navbar-icon {
@@ -46,32 +43,37 @@ body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  min-height: 90vh;
+  width: 100%;
 }
 
-.login_card {
+.login-card {
   background-color: white;
-  width: 488px;
-  display: flex;
-  /* min-width: 315px; */
-  flex-wrap: wrap;
-  flex-basis: 315px;
-  flex: 1 1 315px;
-  /* flex-basis: clamp(315px, 100%, 488px); */
-
+  width: 100%;
+  max-width: 488px;
   height: auto;
   border-top: 4px solid #3ac7ec;
-}
-
-.login_card_container {
-  padding: 20px 32px 0 32px;
+  /* padding: 20px 32px 20px 32px; */
+  display: flex;
+  flex-wrap: wrap;
+  padding: 32px;
+  box-sizing: border-box;
+  margin: 0 16px;
+  margin: auto 16px;
 }
 
 .login_card_header {
   display: flex;
   align-items: center;
+  justify-content: center;
+  width: 100%;
+  position: relative;
 }
 
 .back_arrow_container {
+  position: absolute;
+  left: 0;
+  top: 0;
   width: 17px;
   height: 26px;
   padding-right: 77px;
@@ -85,13 +87,14 @@ body {
 .login_header_text {
   font-size: 24px;
   font-weight: 700;
-  margin: 0px;
+  text-align: center;
 }
 
 .login_radio {
   display: flex;
   gap: 32px;
   margin: 34px 0 0 0;
+  width: 100%;
 }
 
 .radio_option {
@@ -109,6 +112,10 @@ body {
   font-size: 16px;
   font-weight: 500;
   margin: 0;
+}
+
+.dropdown_container {
+  width: 100%;
 }
 
 .dropdown_input {
@@ -149,6 +156,7 @@ body {
 }
 
 .inputs_container {
+  width: 100%;
   padding-top: 56px;
 }
 
@@ -163,7 +171,6 @@ body {
   outline: none;
   font-size: 16px;
   color: #666666;
-  max-width: 350px;
 }
 
 .forgot_username {
@@ -202,7 +209,6 @@ body {
   outline: none;
   font-size: 16px;
   color: #666666;
-  max-width: 424px;
   font-weight: 500;
 }
 
@@ -225,6 +231,7 @@ body {
   margin: 26px 0 0 0;
   align-items: center;
   gap: 5px;
+  width: 100%;
 }
 
 .checkbox_img {
@@ -260,9 +267,13 @@ body {
 .submit_button button {
   cursor: pointer;
 }
-
+.footer_container {
+  width: 100%;
+  margin-top: auto;
+}
 .footer {
   display: flex;
+  width: 100%;
 }
 
 .footer_links {
@@ -291,6 +302,7 @@ body {
   gap: 16px;
   background-color: #e0e1e1;
   height: 40px;
+  width: 100%;
 }
 
 .footer_text_container {
@@ -306,4 +318,13 @@ body {
 
 .footer p {
   color: #616161;
+}
+
+@media (max-width: 600px) {
+  .login-card {
+    margin: 100px 12px;
+  }
+  .login_header_text {
+    margin-top: 50px;
+  }
 }
