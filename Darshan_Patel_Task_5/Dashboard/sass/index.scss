@@ -43,12 +43,14 @@ body {
 .navbar {
   background-image: url(../../images/header.png);
   background-size: cover;
+
   background-position: center;
   position: fixed;
   padding: 0;
   width: 100vw;
   height: 56px;
-  background-color: $background-color_2;
+  background-color: #25313f;
+  background-blend-mode: soft-light;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -126,6 +128,11 @@ body {
   position: relative;
   height: 24px;
   cursor: pointer;
+  img {
+    width: 27px;
+    height: auto;
+    transition: filter 0.2s;
+  }
 }
 .nav-icon-content-2 {
   display: flex;
@@ -213,7 +220,7 @@ body {
   border-radius: 50%;
   font-size: 11px;
   top: -5px;
-  right: -5px;
+  right: -3px;
   color: $color_3;
 }
 .top-circle {
@@ -240,10 +247,15 @@ body {
   align-items: center;
 }
 .box_content.active {
-  box-shadow: inset 0px -4px 0px 0px #222222;
+  // box-shadow: inset 0px -4px 0px 0px #222222;
+  border-bottom: 4px solid #222222;
+  border-top: 4px solid transparent;
 }
 .nav-content-text-container.active {
-  box-shadow: inset 0px -4px 0px 0px #fff;
+  box-sizing: border-box;
+  // box-shadow: inset 0px -4px 0px 0px #fff;
+  border-bottom: 4px solid #fff;
+  border-top: 4px solid transparent;
   color: $color_2;
   a {
     div {
@@ -297,7 +309,7 @@ body {
 .showing_tabs {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: end;
   padding-bottom: 17px;
   border-bottom: 1px solid rgb(212, 212, 212);
   margin-bottom: 16px;
@@ -410,6 +422,7 @@ body {
 }
 .card-header {
   display: flex;
+  flex-wrap: wrap;
   align-items: start;
   justify-content: center;
   gap: 16px;
@@ -579,12 +592,14 @@ body {
   color: $color_4;
   cursor: pointer;
   transition: background 0.2s;
-  img {
-    width: 17px !important;
-    height: 17px !important;
+  .img-container {
+    width: 20px;
     margin-left: 8px;
     transition: transform 0.2s;
     object-fit: contain;
+    img {
+      width: 100%;
+    }
   }
 }
 .inner-hover-content {
@@ -753,7 +768,7 @@ body {
     margin-right: 0;
   }
   .hamburger-menu {
-    margin-right: 48px;
+    margin-right: 36px;
     width: 27px;
   }
 }
@@ -775,6 +790,7 @@ body {
   .card-header {
     width: 523px;
     display: flex;
+
     justify-content: start;
   }
   .card-footer {
@@ -788,6 +804,13 @@ body {
   }
   .tabs_container {
     padding: 0 10px;
+  }
+  .card-footer-icon.disabled {
+    opacity: 1;
+  }
+
+  .navbar {
+    border-bottom: 2px solid #31b9e4;
   }
 }
 
@@ -825,7 +848,6 @@ body {
   .card-header {
     max-width: 252px;
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
   }
@@ -856,9 +878,17 @@ body {
   }
 
   .footer {
-    height: 69px;
-    img {
-      padding-left: 20px;
+    height: 100px;
+    flex-direction: column;
+    gap: 0;
+    padding: 0 20px;
+    p {
+      display: none;
+    }
+    .footer_text_container {
+      p {
+        display: flex;
+      }
     }
   }
 

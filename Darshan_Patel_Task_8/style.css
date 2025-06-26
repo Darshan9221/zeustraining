@@ -1,0 +1,46 @@
+body {
+  font-family: Arial, sans-serif;
+  padding: 20px;
+  background-color: #f4f4f4;
+}
+
+h1,
+p {
+  text-align: center;
+}
+
+/* Container for the canvas to control its size and position */
+#grid-container {
+  position: relative; /* Needed for positioning the editor input */
+  width: 90vw;
+  height: 80vh;
+  margin: 20px auto;
+  border: 1px solid #ccc;
+  overflow: scroll;
+}
+
+#grid-canvas {
+  display: block;
+}
+
+/* 
+This is the input element that will appear on top of a cell
+during editing. We style it to match the cell's appearance.
+*/
+.cell-editor {
+  position: absolute;
+  margin: 0;
+  padding: 0 4px; /* Same padding as our cell text */
+  border: 2px solid #007bff; /* Highlight the editing cell */
+  outline: none;
+  box-sizing: border-box;
+  font-size: 14px; /* Must match canvas font */
+  font-family: Arial, sans-serif; /* Must match canvas font */
+  background-color: #fff;
+  z-index: 100;
+}
+
+#grid-canvas:focus {
+  outline: 2px solid #007bff;
+  outline-offset: -2px; /* Draw the outline inside the border */
+}
