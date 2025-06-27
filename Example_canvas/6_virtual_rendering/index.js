@@ -375,7 +375,7 @@ function showInputBox(row, col) {
     switch (e.key) {
       case "Enter":
       case "ArrowDown":
-        nextRow = Math.min(rows - 1, row + 1);
+        nextRow = Math.min(rows - 2, row + 1);
         navigate = true;
         break;
       case "ArrowUp":
@@ -388,7 +388,7 @@ function showInputBox(row, col) {
         break;
       case "ArrowRight":
       case "Tab":
-        nextCol = Math.min(cols - 1, col + 1);
+        nextCol = Math.min(cols - 2, col + 1);
         navigate = true;
         break;
       case "Escape":
@@ -532,14 +532,6 @@ document.querySelector(".scrollbar-v").addEventListener("scroll", handleScroll);
 
 // Initialize
 resizeCanvas();
-
-// Add some sample data for demonstration
-for (let i = 0; i < 100; i++) {
-  const row = Math.floor(Math.random() * 1000) + 1; // Start from row 1
-  const col = Math.floor(Math.random() * 50) + 1; // Start from col 1
-  setCellValue(row, col, `Data ${i}`);
-}
-
 drawGrid();
 
 // canvas.addEventListener("click", handleCellClick);
