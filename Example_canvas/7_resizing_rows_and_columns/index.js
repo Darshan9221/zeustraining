@@ -22,6 +22,9 @@ let viewportEndCol = 0;
 // Selection
 let selectedRow = null;
 let selectedCol = null;
+// Row/Col header highlight state
+let highlightedRowHeader = null;
+let highlightedColHeader = null;
 
 // Performance tracking
 let lastRenderTime = 0;
@@ -71,22 +74,46 @@ function getCellValue(row, col) {
 
 // Calculate which cells are visible
 function calculateViewport() {
-  // Account for header row/column in calculations
-  viewportStartRow = Math.max(1, Math.floor(scrollY / cellHeight) + 1);
-  viewportEndRow = Math.min(
-    rows - 1,
-    viewportStartRow +
-      Math.ceil((canvas.height - headerHeight) / cellHeight) +
-      1
-  );
-
-  viewportStartCol = Math.max(1, Math.floor(scrollX / cellWidth) + 1);
-  viewportEndCol = Math.min(
-    cols - 1,
-    viewportStartCol + Math.ceil((canvas.width - headerWidth) / cellWidth) + 1
-  );
-
-  // Update info display
+  // Find the first visible row
+  let y = headerHeight;
+  let accY = 0;
+  viewportStartRow = 1;
+  for (let r = 1; r < rows; r++) {
+    if (accY >= scrollY) {
+      viewportStartRow = r;
+      break;
+    }
+    accY += rowHeights[r];
+  }
+  // Find the last visible row
+  let visibleH = canvas.height / getDPR() - headerHeight;
+  let sumY = accY;
+  viewportEndRow = viewportStartRow;
+  for (let r = viewportStartRow; r < rows; r++) {
+    sumY += rowHeights[r];
+    if (sumY - scrollY > visibleH) break;
+    viewportEndRow = r;
+  }
+  // Find the first visible col
+  let x = headerWidth;
+  let accX = 0;
+  viewportStartCol = 1;
+  for (let c = 1; c < cols; c++) {
+    if (accX >= scrollX) {
+      viewportStartCol = c;
+      break;
+    }
+    accX += colWidths[c];
+  }
+  // Find the last visible col
+  let visibleW = canvas.width / getDPR() - headerWidth;
+  let sumX = accX;
+  viewportEndCol = viewportStartCol;
+  for (let c = viewportStartCol; c < cols; c++) {
+    sumX += colWidths[c];
+    if (sumX - scrollX > visibleW) break;
+    viewportEndCol = c;
+  }
   document.getElementById(
     "visibleInfo"
   ).textContent = `${viewportStartRow}-${viewportEndRow}, ${viewportStartCol}-${viewportEndCol}`;
@@ -142,6 +169,149 @@ function colToExcelLabel(col) {
 
 // const grids = new Grid(rows, cols);
 
+// Per-column widths and per-row heights for resizing
+const colWidths = Array(cols).fill(cellWidth);
+const rowHeights = Array(rows).fill(cellHeight);
+
+// Helper to get X position of a column (left edge)
+function getColX(col) {
+  let x = headerWidth;
+  for (let c = 1; c < col; c++) x += colWidths[c];
+  return x;
+}
+// Helper to get Y position of a row (top edge)
+function getRowY(row) {
+  let y = headerHeight;
+  for (let r = 1; r < row; r++) y += rowHeights[r];
+  return y;
+}
+
+// Helper to get column at a given X (returns col index or null)
+function colAtX(x) {
+  let px = headerWidth;
+  for (let c = 1; c < cols; c++) {
+    if (x < px + colWidths[c]) return c;
+    px += colWidths[c];
+  }
+  return null;
+}
+// Helper to get row at a given Y (returns row index or null)
+function rowAtY(y) {
+  let py = headerHeight;
+  for (let r = 1; r < rows; r++) {
+    if (y < py + rowHeights[r]) return r;
+    py += rowHeights[r];
+  }
+  return null;
+}
+
+// Resizing state
+let resizingCol = null;
+let resizingRow = null;
+let resizeStartX = 0;
+let resizeStartY = 0;
+let resizeOrigWidth = 0;
+let resizeOrigHeight = 0;
+
+canvas.addEventListener("mousemove", handleResizeMouseMove);
+canvas.addEventListener("mousedown", handleResizeMouseDown);
+document.addEventListener("mouseup", handleResizeMouseUp);
+document.addEventListener("mousemove", handleResizeMouseDrag);
+
+function handleResizeMouseMove(e) {
+  if (resizingCol !== null || resizingRow !== null) return;
+  const rect = canvas.getBoundingClientRect();
+  const dpr = getDPR();
+  const mouseX = (e.clientX - rect.left) * dpr;
+  const mouseY = (e.clientY - rect.top) * dpr;
+  // Check for column border (vertical line)
+  let colEdge = null;
+  let x = headerWidth;
+  for (let c = 1; c < cols; c++) {
+    x += colWidths[c];
+    if (Math.abs(mouseX - x) < 4) {
+      colEdge = c;
+      break;
+    }
+  }
+  // Check for row border (horizontal line)
+  let rowEdge = null;
+  let y = headerHeight;
+  for (let r = 1; r < rows; r++) {
+    y += rowHeights[r];
+    if (Math.abs(mouseY - y) < 4) {
+      rowEdge = r;
+      break;
+    }
+  }
+  if (colEdge !== null && mouseY < headerHeight) {
+    canvas.style.cursor = "col-resize";
+  } else if (rowEdge !== null && mouseX < headerWidth) {
+    canvas.style.cursor = "row-resize";
+  } else {
+    canvas.style.cursor = "";
+  }
+}
+
+function handleResizeMouseDown(e) {
+  const rect = canvas.getBoundingClientRect();
+  const dpr = getDPR();
+  const mouseX = (e.clientX - rect.left) * dpr;
+  const mouseY = (e.clientY - rect.top) * dpr;
+  // Column resize
+  let x = headerWidth;
+  for (let c = 1; c < cols; c++) {
+    x += colWidths[c];
+    if (Math.abs(mouseX - x) < 4 && mouseY < headerHeight) {
+      resizingCol = c;
+      resizeStartX = mouseX;
+      resizeOrigWidth = colWidths[c];
+      return;
+    }
+  }
+  // Row resize
+  let y = headerHeight;
+  for (let r = 1; r < rows; r++) {
+    y += rowHeights[r];
+    if (Math.abs(mouseY - y) < 4 && mouseX < headerWidth) {
+      resizingRow = r;
+      resizeStartY = mouseY;
+      resizeOrigHeight = rowHeights[r];
+      return;
+    }
+  }
+}
+
+function handleResizeMouseDrag(e) {
+  if (resizingCol !== null) {
+    const rect = canvas.getBoundingClientRect();
+    const dpr = getDPR();
+    const mouseX = (e.clientX - rect.left) * dpr;
+    let newWidth = Math.max(
+      24,
+      resizeOrigWidth + (mouseX - resizeStartX) / dpr
+    );
+    colWidths[resizingCol] = newWidth;
+    drawGrid(selectedRow, selectedCol);
+  } else if (resizingRow !== null) {
+    const rect = canvas.getBoundingClientRect();
+    const dpr = getDPR();
+    const mouseY = (e.clientY - rect.top) * dpr;
+    let newHeight = Math.max(
+      12,
+      resizeOrigHeight + (mouseY - resizeStartY) / dpr
+    );
+    rowHeights[resizingRow] = newHeight;
+    drawGrid(selectedRow, selectedCol);
+  }
+}
+
+function handleResizeMouseUp(e) {
+  resizingCol = null;
+  resizingRow = null;
+}
+
+// Draw grid
 function drawGrid(highlightedRow = null, highlightedCol = null) {
   const startTime = performance.now();
   calculateViewport();
@@ -153,26 +323,74 @@ function drawGrid(highlightedRow = null, highlightedCol = null) {
   ctx.fillRect(0, 0, canvas.width, headerHeight); // Top header row
   ctx.fillRect(0, 0, headerWidth, canvas.height); // Left header column
 
+  // Excel-style row/col selection highlight
+  if (highlightedRowHeader !== null) {
+    // Highlight entire row
+    ctx.fillStyle = "#e8f2ec";
+    const y = getRowY(highlightedRowHeader) - scrollY;
+    ctx.fillRect(
+      headerWidth,
+      y,
+      canvas.width - headerWidth,
+      rowHeights[highlightedRowHeader]
+    );
+    // Row header
+    ctx.fillStyle = "#0f703b";
+    ctx.fillRect(0, y, headerWidth, rowHeights[highlightedRowHeader]);
+    // Row header text (always white)
+    ctx.font = "12px Arial";
+    ctx.fillStyle = "#fff";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(
+      highlightedRowHeader.toString(),
+      headerWidth / 2,
+      y + rowHeights[highlightedRowHeader] / 2
+    );
+    // No border for highlighted row
+  }
+  if (highlightedColHeader !== null) {
+    // Highlight entire column
+    ctx.fillStyle = "#e8f2ec";
+    const x = getColX(highlightedColHeader) - scrollX;
+    ctx.fillRect(
+      x,
+      headerHeight,
+      colWidths[highlightedColHeader],
+      canvas.height - headerHeight
+    );
+    // Col header
+    ctx.fillStyle = "#0f703b";
+    ctx.fillRect(x, 0, colWidths[highlightedColHeader], headerHeight);
+    // Col header text (always white)
+    ctx.font = "12px Arial";
+    ctx.fillStyle = "#fff";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(
+      colToExcelLabel(highlightedColHeader - 1),
+      x + colWidths[highlightedColHeader] / 2,
+      headerHeight / 2
+    );
+  }
+
   // Excel-like header highlight
   if (highlightedRow !== null && highlightedCol !== null) {
     // Highlight header row cell
     if (highlightedCol > 0) {
       ctx.fillStyle = "#a0d8b9";
       ctx.fillRect(
-        highlightedCol * cellWidth - scrollX,
+        getColX(highlightedCol) - scrollX,
         0,
-        cellWidth,
+        colWidths[highlightedCol],
         headerHeight
       );
       // Underline
       ctx.beginPath();
       ctx.strokeStyle = "#107c41";
-      ctx.moveTo(
-        highlightedCol * cellWidth - scrollX + 0.5,
-        headerHeight - 0.5
-      );
+      ctx.moveTo(getColX(highlightedCol) - scrollX + 0.5, headerHeight - 0.5);
       ctx.lineTo(
-        (highlightedCol + 1) * cellWidth - scrollX + 0.5,
+        getColX(highlightedCol + 1) - scrollX + 0.5,
         headerHeight - 0.5
       );
       ctx.stroke();
@@ -182,20 +400,17 @@ function drawGrid(highlightedRow = null, highlightedCol = null) {
       ctx.fillStyle = "#a0d8b9";
       ctx.fillRect(
         0,
-        highlightedRow * cellHeight - scrollY,
+        getRowY(highlightedRow) - scrollY,
         headerWidth,
-        cellHeight
+        rowHeights[highlightedRow]
       );
       // Side border
       ctx.beginPath();
       ctx.strokeStyle = "#107c41";
-      ctx.moveTo(
-        headerWidth - 0.5,
-        highlightedRow * cellHeight - scrollY + 0.5
-      );
+      ctx.moveTo(headerWidth - 0.5, getRowY(highlightedRow) - scrollY + 0.5);
       ctx.lineTo(
         headerWidth - 0.5,
-        (highlightedRow + 1) * cellHeight - scrollY + 0.5
+        getRowY(highlightedRow + 1) - scrollY + 0.5
       );
       ctx.stroke();
     }
@@ -205,20 +420,16 @@ function drawGrid(highlightedRow = null, highlightedCol = null) {
   ctx.beginPath();
   ctx.strokeStyle = "#ddd";
   // Vertical lines for data area
+  let x = headerWidth - scrollX;
   for (let col = viewportStartCol; col <= viewportEndCol + 1; col++) {
-    const x = col * cellWidth - scrollX + 0.5;
-    if (x >= headerWidth && x <= canvas.width) {
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, canvas.height);
-    }
+    ctx.moveTo(getColX(col) - scrollX + 0.5, 0);
+    ctx.lineTo(getColX(col) - scrollX + 0.5, canvas.height);
   }
   // Horizontal lines for data area
+  let y = headerHeight - scrollY;
   for (let row = viewportStartRow; row <= viewportEndRow + 1; row++) {
-    const y = row * cellHeight - scrollY + 0.5;
-    if (y >= headerHeight && y <= canvas.height) {
-      ctx.moveTo(0, y);
-      ctx.lineTo(canvas.width, y);
-    }
+    ctx.moveTo(0, getRowY(row) - scrollY + 0.5);
+    ctx.lineTo(canvas.width, getRowY(row) - scrollY + 0.5);
   }
   // Lines for frozen headers
   ctx.moveTo(headerWidth + 0.5, 0);
@@ -236,8 +447,8 @@ function drawGrid(highlightedRow = null, highlightedCol = null) {
   // Draw data cells
   for (let row = viewportStartRow; row <= viewportEndRow; row++) {
     for (let col = viewportStartCol; col <= viewportEndCol; col++) {
-      const screenX = col * cellWidth - scrollX;
-      const screenY = row * cellHeight - scrollY;
+      const screenX = getColX(col) - scrollX;
+      const screenY = getRowY(row) - scrollY;
       if (
         screenX < headerWidth ||
         screenY < headerHeight ||
@@ -247,8 +458,8 @@ function drawGrid(highlightedRow = null, highlightedCol = null) {
         continue;
       const value = getCellValue(row, col);
       if (value) {
-        const textX = screenX + cellWidth / 2;
-        const textY = screenY + cellHeight / 2;
+        const textX = screenX + colWidths[col] / 2;
+        const textY = screenY + rowHeights[row] / 2;
         ctx.fillText(value, textX, textY);
       }
     }
@@ -257,31 +468,39 @@ function drawGrid(highlightedRow = null, highlightedCol = null) {
   // Draw frozen row headers (left column) with Excel-style numbering
   ctx.font = "12px Arial";
   for (let row = viewportStartRow; row <= viewportEndRow; row++) {
-    const screenY = row * cellHeight - scrollY;
+    const screenY = getRowY(row) - scrollY;
     if (screenY >= headerHeight && screenY <= canvas.height) {
       // Highlighted header text color
-      if (highlightedRow === row) {
+      if (highlightedRowHeader === row) {
+        ctx.fillStyle = "#fff";
+      } else if (highlightedRow === row) {
         ctx.fillStyle = "#0c8289";
       } else {
         ctx.fillStyle = "#666";
       }
-      ctx.fillText(row.toString(), headerWidth / 2, screenY + cellHeight / 2);
+      ctx.fillText(
+        row.toString(),
+        headerWidth / 2,
+        screenY + rowHeights[row] / 2
+      );
     }
   }
 
   // Draw frozen column headers (top row) with Excel-style labels
   for (let col = viewportStartCol; col <= viewportEndCol; col++) {
-    const screenX = col * cellWidth - scrollX;
+    const screenX = getColX(col) - scrollX;
     if (screenX >= headerWidth && screenX <= canvas.width) {
       // Highlighted header text color
-      if (highlightedCol === col) {
+      if (highlightedColHeader === col) {
+        ctx.fillStyle = "#fff";
+      } else if (highlightedCol === col) {
         ctx.fillStyle = "#0c8289";
       } else {
         ctx.fillStyle = "#666";
       }
       ctx.fillText(
         colToExcelLabel(col - 1),
-        screenX + cellWidth / 2,
+        screenX + colWidths[col] / 2,
         headerHeight / 2
       );
     }
@@ -323,37 +542,71 @@ function handleWheel(event) {
   const hScrollbar = document.querySelector(".scrollbar-h");
   const vScrollbar = document.querySelector(".scrollbar-v");
 
+  // Use a smaller scroll step for smoothness
+  const SCROLL_STEP = cellHeight; // or try cellHeight / 2 for even smoother
+
   if (event.shiftKey) {
     // Horizontal scroll when shift is held
-    const newScrollLeft = Math.max(0, hScrollbar.scrollLeft + event.deltaY);
-    hScrollbar.scrollLeft = Math.min(
-      newScrollLeft,
-      hScrollbar.scrollWidth - hScrollbar.clientWidth
+    const delta = Math.sign(event.deltaY) * SCROLL_STEP;
+    hScrollbar.scrollLeft = Math.max(
+      0,
+      Math.min(
+        hScrollbar.scrollLeft + delta,
+        hScrollbar.scrollWidth - hScrollbar.clientWidth
+      )
     );
   } else {
     // Vertical scroll
-    const newScrollTop = Math.max(0, vScrollbar.scrollTop + event.deltaY);
-    vScrollbar.scrollTop = Math.min(
-      newScrollTop,
-      vScrollbar.scrollHeight - vScrollbar.clientHeight
+    const delta = Math.sign(event.deltaY) * SCROLL_STEP;
+    vScrollbar.scrollTop = Math.max(
+      0,
+      Math.min(
+        vScrollbar.scrollTop + delta,
+        vScrollbar.scrollHeight - vScrollbar.clientHeight
+      )
     );
   }
 }
-
 // Handle cell clicks
 function handleCellClick(event) {
   const rect = canvas.getBoundingClientRect();
   const clickX = event.clientX - rect.left;
   const clickY = event.clientY - rect.top;
 
+  // Row/Col header click detection
+  if (clickX < headerWidth && clickY >= headerHeight) {
+    // Row header clicked
+    const y = clickY + scrollY;
+    const row = rowAtY(y);
+    if (row > 0 && row < rows) {
+      highlightedRowHeader = row;
+      highlightedColHeader = null;
+      drawGrid(selectedRow, selectedCol);
+      return;
+    }
+  } else if (clickY < headerHeight && clickX >= headerWidth) {
+    // Col header clicked
+    const x = clickX + scrollX;
+    const col = colAtX(x);
+    if (col > 0 && col < cols) {
+      highlightedColHeader = col;
+      highlightedRowHeader = null;
+      drawGrid(selectedRow, selectedCol);
+      return;
+    }
+  }
   // Don't allow selection in header areas
   if (clickX < headerWidth || clickY < headerHeight) return;
+
+  // On cell click, clear row/col highlight
+  highlightedRowHeader = null;
+  highlightedColHeader = null;
 
   const x = clickX + scrollX;
   const y = clickY + scrollY;
 
-  const col = Math.floor(x / cellWidth);
-  const row = Math.floor(y / cellHeight);
+  const col = colAtX(x);
+  const row = rowAtY(y);
 
   if (row > 0 && row < rows && col > 0 && col < cols) {
     selectedRow = row;
@@ -377,8 +630,9 @@ function showInputBox(row, col) {
   // Do not show input if cell is in header row or header col
   if (row === 0 || col === 0) return;
 
-  const screenX = col * cellWidth - scrollX;
-  const screenY = row * cellHeight - scrollY;
+  const screenX = getColX(col) - scrollX;
+  const screenY = getRowY(row) - scrollY;
+  const dpr = getDPR();
 
   if (
     screenX < headerWidth ||
@@ -394,16 +648,21 @@ function showInputBox(row, col) {
   input.type = "text";
   input.value = value;
   input.style.position = "absolute";
-  input.style.left = canvas.offsetLeft + screenX + "px";
-  input.style.top = canvas.offsetTop + screenY + "px";
-  input.style.width = cellWidth + "px";
-  input.style.height = cellHeight + "px";
+  input.style.left = canvas.offsetLeft + screenX / dpr + 0.5 + "px";
+  input.style.top = canvas.offsetTop + screenY / dpr + 0.5 + "px";
+  input.style.width = colWidths[col] + "px";
+  input.style.height = rowHeights[row] + "px";
   input.style.fontSize = "16px";
-  input.style.textAlign = "center";
+  input.style.textAlign = "left"; // Align text to left
+  input.style.paddingLeft = "4px"; // Add left padding
+  input.style.overflow = "hidden"; // Prevent overflow to left
+  input.style.textOverflow = "ellipsis"; // Show ellipsis if overflow
   input.style.border = "2px solid #007acc";
   input.style.zIndex = 1000;
   input.style.outline = "none";
   input.style.boxSizing = "border-box";
+  input.style.overflow = "hidden";
+  input.style.textOverflow = "ellipsis";
 
   document.body.appendChild(input);
   input.focus();
@@ -419,6 +678,8 @@ function showInputBox(row, col) {
       input.parentNode.removeChild(input);
     }
     currentInput = null;
+    highlightedRowHeader = null;
+    highlightedColHeader = null;
     drawGrid(selectedRow, selectedCol);
   });
 
@@ -463,6 +724,8 @@ function showInputBox(row, col) {
         input.parentNode.removeChild(input);
       }
       currentInput = null;
+      highlightedRowHeader = null;
+      highlightedColHeader = null;
 
       selectedRow = nextRow;
       selectedCol = nextCol;
@@ -486,23 +749,39 @@ function showInputBox(row, col) {
 function updateInputPosition() {
   if (!currentInput || selectedRow === null || selectedCol === null) return;
 
-  const screenX = selectedCol * cellWidth - scrollX;
-  const screenY = selectedRow * cellHeight - scrollY;
+  const screenX = getColX(selectedCol) - scrollX;
+  const screenY = getRowY(selectedRow) - scrollY;
+  const dpr = getDPR();
 
-  // Hide input if scrolled out of view or into header area
-  // if (
-  //   screenX < headerWidth ||
-  //   screenY < headerHeight ||
-  //   screenX > canvas.width ||
-  //   screenY > canvas.height
-  // ) {
-  //   currentInput.style.display = "none";
-  // } else {
   currentInput.style.display = "block";
-  currentInput.style.left = canvas.offsetLeft + screenX + "px";
-  currentInput.style.top = canvas.offsetTop + screenY + "px";
-  // }
+  currentInput.style.left = canvas.offsetLeft + screenX / dpr + 0.5 + "px";
+  currentInput.style.top = canvas.offsetTop + screenY / dpr + 0.5 + "px";
+  currentInput.style.width = colWidths[selectedCol] + "px";
+  currentInput.style.height = rowHeights[selectedRow] + "px";
 }
+
+// Hide input if scrolled out of view
+// function updateInputPosition() {
+//   if (!currentInput || selectedRow === null || selectedCol === null) return;
+
+//   const screenX = selectedCol * cellWidth - scrollX;
+//   const screenY = selectedRow * cellHeight - scrollY;
+//   const dpr = getDPR();
+
+//   // Hide input if scrolled out of view or into header area
+//   if (
+//     screenX < headerWidth ||
+//     screenY < headerHeight ||
+//     screenX > canvas.width ||
+//     screenY > canvas.height
+//   ) {
+//     currentInput.style.display = "none";
+//   } else {
+//     currentInput.style.display = "block";
+//     currentInput.style.left = canvas.offsetLeft + screenX / dpr + 0.5 + "px";
+//     currentInput.style.top = canvas.offsetTop + screenY / dpr + 0.5 + "px";
+//   }
+// }
 
 function ensureCellVisible(row, col) {
   const hScrollbar = document.querySelector(".scrollbar-h");
