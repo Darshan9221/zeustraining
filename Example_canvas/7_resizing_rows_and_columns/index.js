@@ -131,44 +131,6 @@ function colToExcelLabel(col) {
   return label;
 }
 
-// class Cell {
-//   constructor(row, col, val = "") {
-//     this.row = row;
-//     this.col = col;
-//     this.val = val;
-//   }
-//   setValue(val) {
-//     this.val = val;
-//   }
-
-//   getValue() {
-//     return this.val;
-//   }
-// }
-
-// class Grid {
-//   constructor(rows, cols) {
-//     this.rows = rows;
-//     this.cols = cols;
-//     this.cells = this.createCells();
-//   }
-//   createCells() {
-//     const cells = [];
-//     for (let i = 0; i <= this.rows; i++) {
-//       cells[i] = [];
-//       for (let j = 0; j <= this.cols; j++) {
-//         cells[i][j] = new Cell(i, j);
-//       }
-//     }
-//     return cells;
-//   }
-//   getCell(row, col) {
-//     return this.cells[row][col];
-//   }
-// }
-
-// const grids = new Grid(rows, cols);
-
 // Per-column widths and per-row heights for resizing
 const colWidths = Array(cols).fill(cellWidth);
 const rowHeights = Array(rows).fill(cellHeight);
@@ -220,30 +182,40 @@ document.addEventListener("mousemove", handleResizeMouseDrag);
 
 function handleResizeMouseMove(e) {
   if (resizingCol !== null || resizingRow !== null) return;
+
   const rect = canvas.getBoundingClientRect();
-  const dpr = getDPR();
-  const mouseX = (e.clientX - rect.left) * dpr;
-  const mouseY = (e.clientY - rect.top) * dpr;
+  const mouseX = e.clientX - rect.left;
+  const mouseY = e.clientY - rect.top;
+
+  // *** FIX 2: Convert mouse coordinates to virtual grid coordinates by adding scroll offsets ***
+  const virtualMouseX = mouseX + scrollX;
+  const virtualMouseY = mouseY + scrollY;
+
   // Check for column border (vertical line)
   let colEdge = null;
-  let x = headerWidth;
+  let currentX = headerWidth;
   for (let c = 1; c < cols; c++) {
-    x += colWidths[c];
-    if (Math.abs(mouseX - x) < 4) {
+    currentX += colWidths[c];
+    if (Math.abs(virtualMouseX - currentX) < 5) {
       colEdge = c;
       break;
     }
+    if (currentX > virtualMouseX + 5) break; // Optimization
   }
+
   // Check for row border (horizontal line)
   let rowEdge = null;
-  let y = headerHeight;
+  let currentY = headerHeight;
   for (let r = 1; r < rows; r++) {
-    y += rowHeights[r];
-    if (Math.abs(mouseY - y) < 4) {
+    currentY += rowHeights[r];
+    if (Math.abs(virtualMouseY - currentY) < 5) {
       rowEdge = r;
       break;
     }
+    if (currentY > virtualMouseY + 5) break; // Optimization
   }
+
+  // Use screen coordinates (mouseX, mouseY) to check if in the header area
   if (colEdge !== null && mouseY < headerHeight) {
     canvas.style.cursor = "col-resize";
   } else if (rowEdge !== null && mouseX < headerWidth) {
@@ -255,27 +227,32 @@ function handleResizeMouseMove(e) {
 
 function handleResizeMouseDown(e) {
   const rect = canvas.getBoundingClientRect();
-  const dpr = getDPR();
-  const mouseX = (e.clientX - rect.left) * dpr;
-  const mouseY = (e.clientY - rect.top) * dpr;
+  const mouseX = e.clientX - rect.left;
+  const mouseY = e.clientY - rect.top;
+
+  // *** FIX 2: Convert mouse coordinates to virtual grid coordinates by adding scroll offsets ***
+  const virtualMouseX = mouseX + scrollX;
+  const virtualMouseY = mouseY + scrollY;
+
   // Column resize
-  let x = headerWidth;
+  let currentX = headerWidth;
   for (let c = 1; c < cols; c++) {
-    x += colWidths[c];
-    if (Math.abs(mouseX - x) < 4 && mouseY < headerHeight) {
+    currentX += colWidths[c];
+    if (Math.abs(virtualMouseX - currentX) < 5 && mouseY < headerHeight) {
       resizingCol = c;
-      resizeStartX = mouseX;
+      resizeStartX = mouseX; // Store the initial SCREEN coordinate for drag calculation
       resizeOrigWidth = colWidths[c];
       return;
     }
   }
+
   // Row resize
-  let y = headerHeight;
+  let currentY = headerHeight;
   for (let r = 1; r < rows; r++) {
-    y += rowHeights[r];
-    if (Math.abs(mouseY - y) < 4 && mouseX < headerWidth) {
+    currentY += rowHeights[r];
+    if (Math.abs(virtualMouseY - currentY) < 5 && mouseX < headerWidth) {
       resizingRow = r;
-      resizeStartY = mouseY;
+      resizeStartY = mouseY; // Store the initial SCREEN coordinate for drag calculation
       resizeOrigHeight = rowHeights[r];
       return;
     }
@@ -285,28 +262,24 @@ function handleResizeMouseDown(e) {
 function handleResizeMouseDrag(e) {
   if (resizingCol !== null) {
     const rect = canvas.getBoundingClientRect();
-    const dpr = getDPR();
-    const mouseX = (e.clientX - rect.left) * dpr;
-    let newWidth = Math.max(
-      24,
-      resizeOrigWidth + (mouseX - resizeStartX) / dpr
-    );
+    const mouseX = e.clientX - rect.left;
+    let newWidth = Math.max(24, resizeOrigWidth + (mouseX - resizeStartX));
     colWidths[resizingCol] = newWidth;
     drawGrid(selectedRow, selectedCol);
   } else if (resizingRow !== null) {
     const rect = canvas.getBoundingClientRect();
-    const dpr = getDPR();
-    const mouseY = (e.clientY - rect.top) * dpr;
-    let newHeight = Math.max(
-      12,
-      resizeOrigHeight + (mouseY - resizeStartY) / dpr
-    );
+    const mouseY = e.clientY - rect.top;
+    let newHeight = Math.max(12, resizeOrigHeight + (mouseY - resizeStartY));
     rowHeights[resizingRow] = newHeight;
     drawGrid(selectedRow, selectedCol);
   }
 }
 
 function handleResizeMouseUp(e) {
+  // *** FIX 1: Update scrollbar sizes after resizing is complete ***
+  if (resizingCol !== null || resizingRow !== null) {
+    updateScrollbarContentSize();
+  }
   resizingCol = null;
   resizingRow = null;
 }
@@ -573,28 +546,6 @@ function handleCellClick(event) {
   const clickX = event.clientX - rect.left;
   const clickY = event.clientY - rect.top;
 
-  // Row/Col header click detection
-  if (clickX < headerWidth && clickY >= headerHeight) {
-    // Row header clicked
-    const y = clickY + scrollY;
-    const row = rowAtY(y);
-    if (row > 0 && row < rows) {
-      highlightedRowHeader = row;
-      highlightedColHeader = null;
-      drawGrid(selectedRow, selectedCol);
-      return;
-    }
-  } else if (clickY < headerHeight && clickX >= headerWidth) {
-    // Col header clicked
-    const x = clickX + scrollX;
-    const col = colAtX(x);
-    if (col > 0 && col < cols) {
-      highlightedColHeader = col;
-      highlightedRowHeader = null;
-      drawGrid(selectedRow, selectedCol);
-      return;
-    }
-  }
   // Don't allow selection in header areas
   if (clickX < headerWidth || clickY < headerHeight) return;
 
@@ -647,9 +598,11 @@ function showInputBox(row, col) {
   const input = document.createElement("input");
   input.type = "text";
   input.value = value;
+  // --- AFTER (Correct & More Robust) ---
+  const canvasRect = canvas.getBoundingClientRect();
   input.style.position = "absolute";
-  input.style.left = canvas.offsetLeft + screenX / dpr + 0.5 + "px";
-  input.style.top = canvas.offsetTop + screenY / dpr + 0.5 + "px";
+  input.style.left = canvasRect.left + window.scrollX + screenX + 0.5 + "px";
+  input.style.top = canvasRect.top + window.scrollY + screenY + 0.5 + "px";
   input.style.width = colWidths[col] + "px";
   input.style.height = rowHeights[row] + "px";
   input.style.fontSize = "16px";
@@ -754,34 +707,15 @@ function updateInputPosition() {
   const dpr = getDPR();
 
   currentInput.style.display = "block";
-  currentInput.style.left = canvas.offsetLeft + screenX / dpr + 0.5 + "px";
-  currentInput.style.top = canvas.offsetTop + screenY / dpr + 0.5 + "px";
+  // --- AFTER (Correct & More Robust) ---
+  const canvasRect = canvas.getBoundingClientRect();
+  currentInput.style.left =
+    canvasRect.left + window.scrollX + screenX + 0.5 + "px";
+  currentInput.style.top =
+    canvasRect.top + window.scrollY + screenY + 0.5 + "px";
   currentInput.style.width = colWidths[selectedCol] + "px";
   currentInput.style.height = rowHeights[selectedRow] + "px";
 }
-
-// Hide input if scrolled out of view
-// function updateInputPosition() {
-//   if (!currentInput || selectedRow === null || selectedCol === null) return;
-
-//   const screenX = selectedCol * cellWidth - scrollX;
-//   const screenY = selectedRow * cellHeight - scrollY;
-//   const dpr = getDPR();
-
-//   // Hide input if scrolled out of view or into header area
-//   if (
-//     screenX < headerWidth ||
-//     screenY < headerHeight ||
-//     screenX > canvas.width ||
-//     screenY > canvas.height
-//   ) {
-//     currentInput.style.display = "none";
-//   } else {
-//     currentInput.style.display = "block";
-//     currentInput.style.left = canvas.offsetLeft + screenX / dpr + 0.5 + "px";
-//     currentInput.style.top = canvas.offsetTop + screenY / dpr + 0.5 + "px";
-//   }
-// }
 
 function ensureCellVisible(row, col) {
   const hScrollbar = document.querySelector(".scrollbar-h");
@@ -867,82 +801,3 @@ document.querySelector(".scrollbar-v").addEventListener("scroll", handleScroll);
 // Initialize
 resizeCanvas();
 drawGrid();
-
-// canvas.addEventListener("click", handleCellClick);
-
-// function handleCellClick(event) {
-//   const col = Math.floor(event.offsetX / cellWidth);
-//   const row = Math.floor(event.offsetY / cellHeight);
-//   selectedRow = row;
-//   selectedCol = col;
-//   drawGrid(row, col);
-//   showInputBox(row, col);
-// }
-
-// let navigating = false;
-
-// function showInputBox(row, col) {
-//   let oldInput = document.getElementById("cell-input");
-//   if (oldInput) oldInput.remove();
-
-//   let value = grids.getCell(row, col).getValue();
-//   if (value === undefined) value = "";
-
-//   const input = document.createElement("input");
-//   input.type = "text";
-//   input.id = "cell-input";
-//   input.value = value;
-//   input.style.position = "absolute";
-//   input.style.left = canvas.offsetLeft + col * cellWidth + "px";
-//   input.style.top = canvas.offsetTop + row * cellHeight + "px";
-//   input.style.width = cellWidth + "px";
-//   input.style.height = cellHeight + "px";
-//   input.style.fontSize = "16px";
-//   input.style.textAlign = "center";
-//   input.style.zIndex = 10;
-//   document.body.appendChild(input);
-//   input.focus();
-//   input.select();
-
-//   // Save on blur
-//   input.addEventListener("blur", () => {
-//     if (navigating) return; // Don't remove input if navigating
-//     grids.getCell(row, col).setValue(input.value);
-//     input.remove();
-//     drawGrid();
-//   });
-//   input.addEventListener("keydown", (e) => {
-//     let nextRow = row;
-//     let nextCol = col;
-//     let nav = false;
-//     if (e.key === "Enter" || e.key === "ArrowDown") {
-//       nextRow = Math.min(rows - 1, row + 1);
-//       nav = true;
-//       e.preventDefault();
-//     } else if (e.key === "ArrowUp") {
-//       nextRow = Math.max(0, row - 1);
-//       nav = true;
-//       e.preventDefault();
-//     } else if (e.key === "ArrowLeft") {
-//       nextCol = Math.max(0, col - 1);
-//       nav = true;
-//       e.preventDefault();
-//     } else if (e.key === "ArrowRight") {
-//       nextCol = Math.min(cols - 1, col + 1);
-//       nav = true;
-//       e.preventDefault();
-//     } else {
-//       return;
-//     }
-//     if (nav) {
-//       navigating = true;
-//       grids.getCell(row, col).setValue(input.value);
-//       input.remove();
-//       selectedRow = nextRow;
-//       selectedCol = nextCol;
-//       drawGrid(nextRow, nextCol);
-//       showInputBox(nextRow, nextCol);
-//       navigating = false;
-//     }
-//   });
-// }
