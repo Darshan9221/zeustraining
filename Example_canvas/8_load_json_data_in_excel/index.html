@@ -66,7 +66,8 @@
         z-index: 100;
       }
     </style>
-    <script src="index.js" defer></script>
+    <!-- Note: faker.js is now imported via npm and ESM in index.js. Use a bundler (like Vite or Webpack) to build for the browser. -->
+    <script type="module" src="/main.js"></script>
   </head>
   <body>
     <div class="grid-container">
@@ -84,7 +85,7 @@
         <div>Grid: 100,000 × 500 cells</div>
         <div>Visible: <span id="visibleInfo">0-0, 0-0</span></div>
         <div>Selected: <span id="selectedInfo">None</span></div>
-        <!-- <div>Performance: <span id="perfInfo" A>0ms</span></div> -->
+        <div>Performance: <span id="perfInfo" A>0ms</span></div>
       </div>
     </div>
   </body>

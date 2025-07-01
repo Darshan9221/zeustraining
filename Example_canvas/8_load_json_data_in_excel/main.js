@@ -1,3 +1,5 @@
+import { faker } from "@faker-js/faker";
+
 const canvas = document.getElementById("gridCanvas");
 const ctx = canvas.getContext("2d");
 
@@ -313,7 +315,7 @@ function handleResizeMouseUp(e) {
 
 // Draw grid
 function drawGrid(highlightedRow = null, highlightedCol = null) {
-  // const startTime = performance.now();
+  const startTime = performance.now();
   calculateViewport();
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -512,11 +514,11 @@ function drawGrid(highlightedRow = null, highlightedCol = null) {
 
   ctx.fillStyle = "#333"; // Reset color
 
-  // const endTime = performance.now();
-  // lastRenderTime = endTime - startTime;
-  // document.getElementById("perfInfo").textContent = `${lastRenderTime.toFixed(
-  //   1
-  // )}ms`;
+  const endTime = performance.now();
+  lastRenderTime = endTime - startTime;
+  document.getElementById("perfInfo").textContent = `${lastRenderTime.toFixed(
+    1
+  )}ms`;
 }
 
 // Handle scrolling
@@ -551,7 +553,7 @@ function handleWheel(event) {
     hScrollbar.scrollLeft = Math.max(
       0,
       Math.min(
-        hScrollbar.scrollLeft,
+        hScrollbar.scrollLeft + delta,
         hScrollbar.scrollWidth - hScrollbar.clientWidth
       )
     );
@@ -853,6 +855,90 @@ function handleKeydown(e) {
     ensureCellVisible(nextRow, nextCol);
     drawGrid(nextRow, nextCol);
   }
+}
+
+// Add UI for data generation and loading
+window.addEventListener("DOMContentLoaded", () => {
+  // Add buttons if not present
+  if (!document.getElementById("generateDataBtn")) {
+    const btn = document.createElement("button");
+    btn.id = "generateDataBtn";
+    btn.textContent = "Generate 50,000 JSON Records";
+    btn.style.margin = "8px";
+    document.body.insertBefore(btn, document.body.firstChild);
+    btn.addEventListener("click", generateAndDownloadData);
+  }
+  if (!document.getElementById("loadDataInput")) {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.id = "loadDataInput";
+    input.accept = ".json,application/json";
+    input.style.margin = "8px";
+    document.body.insertBefore(input, document.body.firstChild);
+    input.addEventListener("change", handleFileLoad);
+  }
+});
+
+// Generate 50,000 records using faker.js and download as JSON
+async function generateAndDownloadData() {
+  const data = [];
+  for (let i = 1; i <= 50000; i++) {
+    data.push({
+      id: i,
+      firstName: faker.person.firstName(),
+      lastName: faker.person.lastName(),
+      Age: faker.number.int({ min: 18, max: 65 }),
+      Salary: faker.number.int({ min: 20000, max: 2000000 }),
+    });
+  }
+  const blob = new Blob([JSON.stringify(data, null, 2)], {
+    type: "application/json",
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "data.json";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// Load JSON file and fill grid
+function handleFileLoad(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function (evt) {
+    try {
+      const data = JSON.parse(evt.target.result);
+      loadJsonToGrid(data);
+    } catch (err) {
+      alert("Invalid JSON file!");
+    }
+  };
+  reader.readAsText(file);
+}
+
+// Map JSON data to grid (columns: id, firstName, lastName, Age, Salary)
+function loadJsonToGrid(data) {
+  cellData.clear();
+  // Set headers
+  setCellValue(1, 1, "id");
+  setCellValue(1, 2, "firstName");
+  setCellValue(1, 3, "lastName");
+  setCellValue(1, 4, "Age");
+  setCellValue(1, 5, "Salary");
+  // Fill rows
+  for (let i = 0; i < data.length; i++) {
+    const row = i + 2; // Start from row 2
+    setCellValue(row, 1, data[i].id);
+    setCellValue(row, 2, data[i].firstName);
+    setCellValue(row, 3, data[i].lastName);
+    setCellValue(row, 4, data[i].Age);
+    setCellValue(row, 5, data[i].Salary);
+  }
+  drawGrid();
 }
 
 // Event listeners
