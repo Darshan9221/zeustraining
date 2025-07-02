@@ -39,8 +39,8 @@ export class InputHandler {
         input.type = "text";
         input.value = value;
         input.style.position = "absolute";
-        input.style.left = `${canvasRect.left + window.scrollX + screenX}px`;
-        input.style.top = `${canvasRect.top + window.scrollY + screenY}px`;
+        input.style.left = `${canvasRect.left + window.scrollX + 0.5 + screenX}px`;
+        input.style.top = `${canvasRect.top + window.scrollY + 0.5 + screenY}px`;
         input.style.width = `${this.grid.colWidths[col]}px`;
         input.style.height = `${this.grid.rowHeights[row]}px`;
         input.style.fontSize = "14px";
@@ -62,20 +62,26 @@ export class InputHandler {
             this.currentInput = null;
             this.grid.drawGrid();
         });
-        input.addEventListener("keydown", (e) => this.handleInputKeyDown(e, row, col));
+        // *** THE FIX IS HERE: We no longer pass row/col to the handler. ***
+        // It will now read the live state from the grid instance.
+        input.addEventListener("keydown", (e) => this.handleInputKeyDown(e));
     }
     /**
      * Handles keyboard navigation within the input box (Arrow keys, Enter, Tab, Escape).
      * @param {KeyboardEvent} e The keyboard event.
-     * @param {number} row The current row of the input.
-     * @param {number} col The current column of the input.
      */
-    handleInputKeyDown(e, row, col) {
+    handleInputKeyDown(e) {
+        // *** THE FIX IS HERE: Read the current selection from the grid's state. ***
+        // This prevents using stale values from a closure.
+        const row = this.grid.selectedRow;
+        const col = this.grid.selectedCol;
+        if (row === null || col === null)
+            return; // Should not happen, but a good safeguard
         let nextRow = row, nextCol = col, navigate = false;
         switch (e.key) {
             case "Enter":
             case "ArrowDown":
-                nextRow = Math.min(this.grid.rows - 1, row + 1);
+                nextRow = Math.min(this.grid.rows - 2, row + 1);
                 navigate = true;
                 break;
             case "ArrowUp":
@@ -88,7 +94,7 @@ export class InputHandler {
                 break;
             case "ArrowRight":
             case "Tab":
-                nextCol = Math.min(this.grid.cols - 1, col + 1);
+                nextCol = Math.min(this.grid.cols - 2, col + 1);
                 navigate = true;
                 break;
             case "Escape":
@@ -122,8 +128,8 @@ export class InputHandler {
         const screenX = this.grid.getColX(this.grid.selectedCol) - this.grid.scrollX;
         const screenY = this.grid.getRowY(this.grid.selectedRow) - this.grid.scrollY;
         const canvasRect = this.grid.canvas.getBoundingClientRect();
-        this.currentInput.style.left = `${canvasRect.left + window.scrollX + screenX}px`;
-        this.currentInput.style.top = `${canvasRect.top + window.scrollY + screenY}px`;
+        this.currentInput.style.left = `${canvasRect.left + window.scrollX + 0.5 + screenX}px`;
+        this.currentInput.style.top = `${canvasRect.top + window.scrollY + 0.5 + screenY}px`;
         this.currentInput.style.width = `${this.grid.colWidths[this.grid.selectedCol]}px`;
         this.currentInput.style.height = `${this.grid.rowHeights[this.grid.selectedRow]}px`;
     }

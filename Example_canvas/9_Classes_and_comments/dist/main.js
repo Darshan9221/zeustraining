@@ -10,8 +10,8 @@ class App {
     constructor() {
         const canvas = document.getElementById("gridCanvas");
         // --- Configuration ---
-        const rows = 100000;
-        const cols = 500;
+        const rows = 100002;
+        const cols = 502;
         const cellWidth = 64;
         const cellHeight = 20;
         // --- Initialization ---
@@ -48,23 +48,10 @@ class App {
         controlsContainer.style.display = "flex";
         controlsContainer.style.alignItems = "center";
         controlsContainer.style.padding = "4px";
-        // --- Create the Dropdown Menu ---
-        const select = document.createElement("select");
-        select.id = "generateDataSelect";
-        select.style.marginRight = "8px";
-        const placeholderOption = document.createElement("option");
-        placeholderOption.textContent = "Generate Data...";
-        placeholderOption.disabled = true;
-        placeholderOption.selected = true;
-        select.appendChild(placeholderOption);
-        const downloadOption = document.createElement("option");
-        downloadOption.textContent = "Generate and Download";
-        downloadOption.value = "download";
-        select.appendChild(downloadOption);
-        const loadOption = document.createElement("option");
-        loadOption.textContent = "Generate and Load";
-        loadOption.value = "load";
-        select.appendChild(loadOption);
+        // --- Create the "Generate and Load" Button ---
+        const generateBtn = document.createElement("button");
+        generateBtn.textContent = "Generate and Load";
+        generateBtn.style.marginRight = "8px";
         // --- Create the Number Input for Record Count ---
         const countInput = document.createElement("input");
         countInput.type = "number";
@@ -73,32 +60,22 @@ class App {
         countInput.value = "50000"; // Default value
         countInput.style.width = "120px";
         countInput.style.marginRight = "16px";
-        // --- Add Event Listener to the Dropdown ---
-        select.addEventListener("change", (e) => {
-            const selectedValue = e.target.value;
+        // --- Add Click Listener to the Button ---
+        generateBtn.addEventListener("click", () => {
             // --- Get and Validate the Record Count ---
             const count = parseInt(countInput.value, 10);
-            const maxRecords = this.grid.rows - 10; // -1 for header, -9 for buffer
+            const maxRecords = this.grid.rows - 10; // -1 for header row, -9 for buffer
             if (isNaN(count) || count <= 0) {
                 alert("Please enter a valid positive number of records.");
-                select.selectedIndex = 0; // Reset dropdown
                 return;
             }
             if (count > maxRecords) {
                 alert(`Number of records cannot exceed ${maxRecords}. Please enter a smaller number.`);
                 countInput.value = maxRecords.toString(); // Optional: set to max
-                select.selectedIndex = 0; // Reset dropdown
                 return;
             }
-            // --- Perform the selected action ---
-            if (selectedValue === "download") {
-                DataManager.generateAndDownloadData(count);
-            }
-            else if (selectedValue === "load") {
-                DataManager.generateAndLoadData(this.grid, count);
-            }
-            // Reset dropdown to the placeholder after action
-            select.selectedIndex = 0;
+            // --- Perform the action ---
+            DataManager.generateAndLoadData(this.grid, count);
         });
         // --- Create the File Input ---
         const loadFileLabel = document.createElement("label");
@@ -110,7 +87,7 @@ class App {
         loadFileInput.accept = ".json,application/json";
         loadFileInput.addEventListener("change", (e) => DataManager.handleFileLoad(e, this.grid));
         // --- Add all controls to the container ---
-        controlsContainer.appendChild(select);
+        controlsContainer.appendChild(generateBtn);
         controlsContainer.appendChild(countInput);
         controlsContainer.appendChild(loadFileLabel);
         controlsContainer.appendChild(loadFileInput);
@@ -130,12 +107,13 @@ class App {
         e.preventDefault();
         const hScrollbar = document.querySelector(".scrollbar-h");
         const vScrollbar = document.querySelector(".scrollbar-v");
-        const scrollAmount = 60;
+        const colscrollAmount = 100;
+        const rowscrollAmount = 20;
         if (e.shiftKey) {
-            hScrollbar.scrollLeft += Math.sign(e.deltaY) * scrollAmount;
+            hScrollbar.scrollLeft += Math.sign(e.deltaY) * colscrollAmount;
         }
         else {
-            vScrollbar.scrollTop += Math.sign(e.deltaY) * scrollAmount;
+            vScrollbar.scrollTop += Math.sign(e.deltaY) * rowscrollAmount;
         }
     }
     handleCanvasClick(e) {
@@ -190,19 +168,19 @@ class App {
         let navigate = false;
         switch (e.key) {
             case "ArrowDown":
-                nextRow = Math.min(this.grid.rows - 1, this.grid.selectedRow + 1);
+                nextRow = Math.min(this.grid.rows - 2, this.grid.selectedRow);
                 navigate = true;
                 break;
             case "ArrowUp":
-                nextRow = Math.max(1, this.grid.selectedRow - 1);
+                nextRow = Math.max(1, this.grid.selectedRow);
                 navigate = true;
                 break;
             case "ArrowLeft":
-                nextCol = Math.max(1, this.grid.selectedCol - 1);
+                nextCol = Math.max(1, this.grid.selectedCol);
                 navigate = true;
                 break;
             case "ArrowRight":
-                nextCol = Math.min(this.grid.cols - 1, this.grid.selectedCol + 1);
+                nextCol = Math.min(this.grid.cols - 2, this.grid.selectedCol);
                 navigate = true;
                 break;
             case "Enter":
