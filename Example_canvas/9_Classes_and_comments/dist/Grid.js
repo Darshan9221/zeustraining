@@ -4,43 +4,20 @@
  * Handles drawing, viewport calculation, scrolling, data, and selection.
  */
 export class Grid {
-    /**
-     * Initializes the Grid object.
-     * @param {HTMLCanvasElement} canvas The canvas element to draw on.
-     * @param {number} rows The total number of rows.
-     * @param {number} cols The total number of columns.
-     * @param {number} defaultCellWidth The initial width for all cells.
-     * @param {number} defaultCellHeight The initial height for all cells.
-     */
     constructor(canvas, rows, cols, defaultCellWidth, defaultCellHeight) {
-        /** @type {number} The width of the row header column. */
-        this.headerWidth = 64;
-        /** @type {number} The height of the column header row. */
-        this.headerHeight = 20;
-        /** @type {Map<string, any>} A sparse map for storing cell data. The key is "row,col". */
         this.cellData = new Map();
-        // --- State Variables ---
-        /** @type {number} The current horizontal scroll position in pixels. */
         this.scrollX = 0;
-        /** @type {number} The current vertical scroll position in pixels. */
         this.scrollY = 0;
-        /** @type {number} The first visible row index in the current viewport. */
         this.viewportStartRow = 0;
-        /** @type {number} The last visible row index in the current viewport. */
         this.viewportEndRow = 0;
-        /** @type {number} The first visible column index in the current viewport. */
         this.viewportStartCol = 0;
-        /** @type {number} The last visible column index in the current viewport. */
         this.viewportEndCol = 0;
-        // --- Selection State ---
-        /** @type {number | null} The currently selected row's index. */
         this.selectedRow = null;
-        /** @type {number | null} The currently selected column's index. */
         this.selectedCol = null;
-        /** @type {number | null} The currently highlighted row header's index. */
         this.highlightedRowHeader = null;
-        /** @type {number | null} The currently highlighted column header's index. */
         this.highlightedColHeader = null;
+        /** @type {boolean} A flag to indicate if a redraw is required on the next frame. */
+        this.needsRedraw = false;
         this.canvas = canvas;
         this.ctx = canvas.getContext("2d");
         this.rows = rows;
@@ -49,18 +26,12 @@ export class Grid {
         this.headerHeight = defaultCellHeight;
         this.colWidths = Array(cols).fill(defaultCellWidth);
         this.rowHeights = Array(rows).fill(defaultCellHeight);
-        this.resizeCanvas();
+        // Start the render loop.
+        this.renderLoop();
     }
-    /**
-     * Gets the device pixel ratio for high-DPI rendering.
-     * @returns {number} The device pixel ratio.
-     */
     getDPR() {
         return window.devicePixelRatio || 1;
     }
-    /**
-     * Recalculates the total virtual size of the grid and updates the scrollbar elements.
-     */
     updateScrollbarContentSize() {
         let totalGridWidth = 0;
         for (let i = 1; i < this.cols; i++) {
@@ -75,9 +46,6 @@ export class Grid {
         document.getElementById("vScrollContent").style.height =
             totalGridHeight + "px";
     }
-    /**
-     * Resizes the canvas to fit its container and adjusts for device pixel ratio.
-     */
     resizeCanvas() {
         const container = this.canvas.parentElement;
         const dpr = this.getDPR();
@@ -88,14 +56,8 @@ export class Grid {
         this.ctx.setTransform(1, 0, 0, 1, 0, 0);
         this.ctx.scale(dpr, dpr);
         this.updateScrollbarContentSize();
-        this.drawGrid();
+        this.requestRedraw();
     }
-    /**
-     * Sets the value for a specific cell in the sparse data map.
-     * @param {number} row The row index.
-     * @param {number} col The column index.
-     * @param {any} value The value to set.
-     */
     setCellValue(row, col, value) {
         const key = `${row},${col}`;
         if (value === "" || value === null || value === undefined) {
@@ -105,24 +67,12 @@ export class Grid {
             this.cellData.set(key, value);
         }
     }
-    /**
-     * Gets the value of a specific cell.
-     * @param {number} row The row index.
-     * @param {number} col The column index.
-     * @returns {any} The cell's value or an empty string.
-     */
     getCellValue(row, col) {
         return this.cellData.get(`${row},${col}`) || "";
     }
-    /**
-     * Clears all data from the grid.
-     */
     clearAllCells() {
         this.cellData.clear();
     }
-    /**
-     * Calculates the visible range of rows and columns based on scroll position.
-     */
     calculateViewport() {
         let accY = 0;
         this.viewportStartRow = 1;
@@ -166,11 +116,6 @@ export class Grid {
         }
         document.getElementById("visibleInfo").textContent = `${this.viewportStartRow}-${this.viewportEndRow}, ${this.viewportStartCol}-${this.viewportEndCol}`;
     }
-    /**
-     * Converts a 0-based column index to an Excel-style letter label (A, B, C...).
-     * @param {number} col The 0-based column index.
-     * @returns {string} The Excel-style label.
-     */
     colToExcelLabel(col) {
         let label = "";
         col++;
@@ -181,33 +126,18 @@ export class Grid {
         }
         return label;
     }
-    /**
-     * Gets the absolute X coordinate (left edge) of a given column in the virtual grid.
-     * @param {number} col The column index.
-     * @returns {number} The X coordinate.
-     */
     getColX(col) {
         let x = this.headerWidth;
         for (let c = 1; c < col; c++)
             x += this.colWidths[c];
         return x;
     }
-    /**
-     * Gets the absolute Y coordinate (top edge) of a given row in the virtual grid.
-     * @param {number} row The row index.
-     * @returns {number} The Y coordinate.
-     */
     getRowY(row) {
         let y = this.headerHeight;
         for (let r = 1; r < row; r++)
             y += this.rowHeights[r];
         return y;
     }
-    /**
-     * Finds the column index at a given virtual X coordinate.
-     * @param {number} x The virtual X coordinate.
-     * @returns {number | null} The column index or null.
-     */
     colAtX(x) {
         let px = this.headerWidth;
         for (let c = 1; c < this.cols; c++) {
@@ -217,11 +147,6 @@ export class Grid {
         }
         return null;
     }
-    /**
-     * Finds the row index at a given virtual Y coordinate.
-     * @param {number} y The virtual Y coordinate.
-     * @returns {number | null} The row index or null.
-     */
     rowAtY(y) {
         let py = this.headerHeight;
         for (let r = 1; r < this.rows; r++) {
@@ -231,18 +156,23 @@ export class Grid {
         }
         return null;
     }
-    /**
-     * The main drawing function. Renders the entire visible grid, including headers, lines, and data.
-     */
+    renderLoop() {
+        requestAnimationFrame(this.renderLoop.bind(this));
+        if (this.needsRedraw) {
+            this.drawGrid();
+            this.needsRedraw = false;
+        }
+    }
+    requestRedraw() {
+        this.needsRedraw = true;
+    }
     drawGrid() {
         this.calculateViewport();
         const ctx = this.ctx;
-        // Clear and draw header backgrounds
         ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         ctx.fillStyle = "#f5f5f5";
         ctx.fillRect(0, 0, this.canvas.width, this.headerHeight);
         ctx.fillRect(0, 0, this.headerWidth, this.canvas.height);
-        // Draw full row/col highlights
         if (this.highlightedRowHeader !== null) {
             ctx.fillStyle = "#e8f2ec";
             const y = this.getRowY(this.highlightedRowHeader) - this.scrollY;
@@ -257,7 +187,6 @@ export class Grid {
             ctx.fillStyle = "#0f703b";
             ctx.fillRect(x, 0, this.colWidths[this.highlightedColHeader], this.headerHeight);
         }
-        // Draw active cell highlights on headers
         if (this.selectedRow !== null && this.selectedCol !== null) {
             if (this.selectedCol > 0) {
                 ctx.fillStyle = "#a0d8b9";
@@ -278,7 +207,6 @@ export class Grid {
                 ctx.stroke();
             }
         }
-        // Draw grid lines
         ctx.beginPath();
         ctx.strokeStyle = "#ddd";
         for (let c = this.viewportStartCol; c <= this.viewportEndCol + 1; c++) {
@@ -292,7 +220,6 @@ export class Grid {
             ctx.lineTo(this.canvas.width, y + 0.5);
         }
         ctx.stroke();
-        // Draw cell data
         ctx.font = "14px Arial";
         ctx.fillStyle = "#333";
         ctx.textAlign = "center";
@@ -307,36 +234,28 @@ export class Grid {
                 }
             }
         }
-        // Draw header text (Numbers and Letters)
         ctx.font = "12px Arial";
         ctx.textAlign = "center";
         for (let r = this.viewportStartRow; r <= this.viewportEndRow; r++) {
             const screenY = this.getRowY(r) - this.scrollY;
-            if (this.highlightedRowHeader === r) {
-                ctx.fillStyle = "#fff";
-            }
-            else if (this.selectedRow === r) {
-                ctx.fillStyle = "#0c8289";
-            }
-            else {
-                ctx.fillStyle = "#666";
-            }
+            ctx.fillStyle =
+                this.highlightedRowHeader === r
+                    ? "#fff"
+                    : this.selectedRow === r
+                        ? "#0c8289"
+                        : "#666";
             ctx.fillText(r.toString(), this.headerWidth / 2, screenY + this.rowHeights[r] / 2);
         }
         for (let c = this.viewportStartCol; c <= this.viewportEndCol; c++) {
             const screenX = this.getColX(c) - this.scrollX;
-            if (this.highlightedColHeader === c) {
-                ctx.fillStyle = "#fff";
-            }
-            else if (this.selectedCol === c) {
-                ctx.fillStyle = "#0c8289";
-            }
-            else {
-                ctx.fillStyle = "#666";
-            }
+            ctx.fillStyle =
+                this.highlightedColHeader === c
+                    ? "#fff"
+                    : this.selectedCol === c
+                        ? "#0c8289"
+                        : "#666";
             ctx.fillText(this.colToExcelLabel(c - 1), screenX + this.colWidths[c] / 2, this.headerHeight / 2);
         }
-        // Draw corner cell background again to cover lines
         ctx.fillStyle = "#f5f5f5";
         ctx.fillRect(0, 0, this.headerWidth, this.headerHeight);
         ctx.beginPath();
@@ -346,7 +265,6 @@ export class Grid {
         ctx.moveTo(0, this.headerHeight + 0.5);
         ctx.lineTo(this.canvas.width, this.headerHeight + 0.5);
         ctx.stroke();
-        // Final corner text
         ctx.fillStyle = "#333";
         ctx.fillText("", this.headerWidth / 2, this.headerHeight / 2);
     }

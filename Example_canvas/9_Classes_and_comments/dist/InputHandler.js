@@ -1,23 +1,9 @@
-/**
- * Manages the floating <input> element for cell editing.
- */
 export class InputHandler {
-    /**
-     * Initializes the InputHandler.
-     * @param {Grid} grid The main Grid instance.
-     */
     constructor(grid) {
-        /** @type {HTMLInputElement | null} The currently active input element. */
         this.currentInput = null;
-        /** @type {boolean} A flag to prevent the blur event from firing during keyboard navigation. */
         this.isNavigating = false;
         this.grid = grid;
     }
-    /**
-     * Creates and displays the input box over a specified cell.
-     * @param {number} row The row index of the cell.
-     * @param {number} col The column index of the cell.
-     */
     showInputBox(row, col) {
         if (this.currentInput && this.currentInput.parentNode) {
             this.currentInput.parentNode.removeChild(this.currentInput);
@@ -60,23 +46,15 @@ export class InputHandler {
             if (input.parentNode)
                 input.parentNode.removeChild(input);
             this.currentInput = null;
-            this.grid.drawGrid();
+            this.grid.requestRedraw(); // CHANGED
         });
-        // *** THE FIX IS HERE: We no longer pass row/col to the handler. ***
-        // It will now read the live state from the grid instance.
         input.addEventListener("keydown", (e) => this.handleInputKeyDown(e));
     }
-    /**
-     * Handles keyboard navigation within the input box (Arrow keys, Enter, Tab, Escape).
-     * @param {KeyboardEvent} e The keyboard event.
-     */
     handleInputKeyDown(e) {
-        // *** THE FIX IS HERE: Read the current selection from the grid's state. ***
-        // This prevents using stale values from a closure.
         const row = this.grid.selectedRow;
         const col = this.grid.selectedCol;
         if (row === null || col === null)
-            return; // Should not happen, but a good safeguard
+            return;
         let nextRow = row, nextCol = col, navigate = false;
         switch (e.key) {
             case "Enter":
@@ -99,6 +77,7 @@ export class InputHandler {
                 break;
             case "Escape":
                 this.hideInput();
+                this.grid.requestRedraw();
                 return;
         }
         if (navigate) {
@@ -109,7 +88,7 @@ export class InputHandler {
             this.grid.selectedRow = nextRow;
             this.grid.selectedCol = nextCol;
             this.ensureCellVisible(nextRow, nextCol);
-            this.grid.drawGrid();
+            this.grid.requestRedraw(); // CHANGED
             document.getElementById("selectedInfo").textContent = `R${nextRow}, C${nextCol}`;
             setTimeout(() => {
                 this.showInputBox(nextRow, nextCol);
@@ -117,9 +96,6 @@ export class InputHandler {
             }, 0);
         }
     }
-    /**
-     * Updates the position of the input box, typically called during a scroll event.
-     */
     updateInputPosition() {
         if (!this.currentInput ||
             this.grid.selectedRow === null ||
@@ -128,32 +104,20 @@ export class InputHandler {
         const screenX = this.grid.getColX(this.grid.selectedCol) - this.grid.scrollX;
         const screenY = this.grid.getRowY(this.grid.selectedRow) - this.grid.scrollY;
         const canvasRect = this.grid.canvas.getBoundingClientRect();
-        this.currentInput.style.left = `${canvasRect.left + window.scrollX + 0.5 + screenX}px`;
-        this.currentInput.style.top = `${canvasRect.top + window.scrollY + 0.5 + screenY}px`;
+        this.currentInput.style.left = `${canvasRect.left + window.scrollX + screenX + 0.5}px`;
+        this.currentInput.style.top = `${canvasRect.top + window.scrollY + screenY + 0.5}px`;
         this.currentInput.style.width = `${this.grid.colWidths[this.grid.selectedCol]}px`;
         this.currentInput.style.height = `${this.grid.rowHeights[this.grid.selectedRow]}px`;
     }
-    /**
-     * Safely removes the input box from the DOM.
-     */
     hideInput() {
         if (this.currentInput && this.currentInput.parentNode) {
             this.currentInput.parentNode.removeChild(this.currentInput);
         }
         this.currentInput = null;
     }
-    /**
-     * Checks if the input box is currently active.
-     * @returns {boolean} True if the input is active.
-     */
     isActive() {
         return this.currentInput !== null;
     }
-    /**
-     * Scrolls the grid to ensure the specified cell is visible in the viewport.
-     * @param {number} row The row index to make visible.
-     * @param {number} col The column index to make visible.
-     */
     ensureCellVisible(row, col) {
         const hScrollbar = document.querySelector(".scrollbar-h");
         const vScrollbar = document.querySelector(".scrollbar-v");
