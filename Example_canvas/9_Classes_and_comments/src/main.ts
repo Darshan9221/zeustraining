@@ -18,11 +18,13 @@ class App {
   constructor() {
     const canvas = document.getElementById("gridCanvas") as HTMLCanvasElement;
 
+    // --- Configuration ---
     const rows = 100000;
     const cols = 500;
     const cellWidth = 64;
     const cellHeight = 20;
 
+    // --- Initialization ---
     this.grid = new Grid(canvas, rows, cols, cellWidth, cellHeight);
     this.resizeHandler = new ResizeHandler(this.grid, canvas);
     this.inputHandler = new InputHandler(this.grid);
@@ -30,13 +32,14 @@ class App {
     this.setupEventListeners();
     this.setupUI();
 
-    this.grid.drawGrid();
+    this.grid.drawGrid(); // Initial draw
   }
 
   /**
    * Sets up all the necessary global event listeners for the application.
    */
   private setupEventListeners(): void {
+    // ... (This function remains unchanged)
     const hScrollbar = document.querySelector(".scrollbar-h")!;
     const vScrollbar = document.querySelector(".scrollbar-v")!;
     const canvas = this.grid.canvas;
@@ -55,31 +58,103 @@ class App {
   }
 
   /**
-   * Sets up the data generation and loading buttons.
+   * Sets up the UI controls: data generation dropdown, record count input, and file loader.
    */
   private setupUI(): void {
-    const generateBtn = document.createElement("button");
-    generateBtn.id = "generateDataBtn";
-    generateBtn.textContent = "Generate 50,000 JSON Records";
-    generateBtn.style.margin = "8px";
-    generateBtn.addEventListener("click", DataManager.generateAndDownloadData);
+    // --- Create a container for the controls for better layout ---
+    const controlsContainer = document.createElement("div");
+    controlsContainer.style.display = "flex";
+    controlsContainer.style.alignItems = "center";
+    controlsContainer.style.padding = "4px";
 
-    const loadInput = document.createElement("input");
-    loadInput.type = "file";
-    loadInput.id = "loadDataInput";
-    loadInput.accept = ".json,application/json";
-    loadInput.style.margin = "8px";
-    loadInput.addEventListener("change", (e) =>
+    // --- Create the Dropdown Menu ---
+    const select = document.createElement("select");
+    select.id = "generateDataSelect";
+    select.style.marginRight = "8px";
+
+    const placeholderOption = document.createElement("option");
+    placeholderOption.textContent = "Generate Data...";
+    placeholderOption.disabled = true;
+    placeholderOption.selected = true;
+    select.appendChild(placeholderOption);
+
+    const downloadOption = document.createElement("option");
+    downloadOption.textContent = "Generate and Download";
+    downloadOption.value = "download";
+    select.appendChild(downloadOption);
+
+    const loadOption = document.createElement("option");
+    loadOption.textContent = "Generate and Load";
+    loadOption.value = "load";
+    select.appendChild(loadOption);
+
+    // --- Create the Number Input for Record Count ---
+    const countInput = document.createElement("input");
+    countInput.type = "number";
+    countInput.id = "recordCountInput";
+    countInput.placeholder = "e.g., 50000";
+    countInput.value = "50000"; // Default value
+    countInput.style.width = "120px";
+    countInput.style.marginRight = "16px";
+
+    // --- Add Event Listener to the Dropdown ---
+    select.addEventListener("change", (e) => {
+      const selectedValue = (e.target as HTMLSelectElement).value;
+
+      // --- Get and Validate the Record Count ---
+      const count = parseInt(countInput.value, 10);
+      const maxRecords = this.grid.rows - 10; // -1 for header, -9 for buffer
+
+      if (isNaN(count) || count <= 0) {
+        alert("Please enter a valid positive number of records.");
+        select.selectedIndex = 0; // Reset dropdown
+        return;
+      }
+
+      if (count > maxRecords) {
+        alert(
+          `Number of records cannot exceed ${maxRecords}. Please enter a smaller number.`
+        );
+        countInput.value = maxRecords.toString(); // Optional: set to max
+        select.selectedIndex = 0; // Reset dropdown
+        return;
+      }
+
+      // --- Perform the selected action ---
+      if (selectedValue === "download") {
+        DataManager.generateAndDownloadData(count);
+      } else if (selectedValue === "load") {
+        DataManager.generateAndLoadData(this.grid, count);
+      }
+
+      // Reset dropdown to the placeholder after action
+      select.selectedIndex = 0;
+    });
+
+    // --- Create the File Input ---
+    const loadFileLabel = document.createElement("label");
+    loadFileLabel.textContent = "Or Load File:";
+    loadFileLabel.style.marginRight = "8px";
+
+    const loadFileInput = document.createElement("input");
+    loadFileInput.type = "file";
+    loadFileInput.id = "loadDataInput";
+    loadFileInput.accept = ".json,application/json";
+    loadFileInput.addEventListener("change", (e) =>
       DataManager.handleFileLoad(e, this.grid)
     );
 
-    document.body.insertBefore(generateBtn, document.body.firstChild);
-    document.body.insertBefore(loadInput, document.body.firstChild);
+    // --- Add all controls to the container ---
+    controlsContainer.appendChild(select);
+    controlsContainer.appendChild(countInput);
+    controlsContainer.appendChild(loadFileLabel);
+    controlsContainer.appendChild(loadFileInput);
+
+    // --- Add the container to the page ---
+    document.body.insertBefore(controlsContainer, document.body.firstChild);
   }
 
-  /**
-   * Handles scroll events from the custom scrollbars.
-   */
+  // ... (The rest of the App class remains unchanged) ...
   private handleScroll(): void {
     this.grid.scrollX = document.querySelector(".scrollbar-h")!.scrollLeft;
     this.grid.scrollY = document.querySelector(".scrollbar-v")!.scrollTop;
@@ -88,11 +163,6 @@ class App {
       this.inputHandler.updateInputPosition();
     }
   }
-
-  /**
-   * Handles mouse wheel events on the canvas for scrolling.
-   * @param {WheelEvent} e The wheel event.
-   */
   private handleWheel(e: WheelEvent): void {
     e.preventDefault();
     const hScrollbar = document.querySelector(".scrollbar-h")!;
@@ -104,11 +174,6 @@ class App {
       vScrollbar.scrollTop += Math.sign(e.deltaY) * scrollAmount;
     }
   }
-
-  /**
-   * Handles click events on the canvas to select cells or headers.
-   * @param {MouseEvent} e The mouse event.
-   */
   private handleCanvasClick(e: MouseEvent): void {
     const rect = this.grid.canvas.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
@@ -157,11 +222,6 @@ class App {
       this.inputHandler.showInputBox(row, col);
     }
   }
-
-  /**
-   * Handles global keydown events for grid navigation.
-   * @param {KeyboardEvent} e The keyboard event.
-   */
   private handleKeydown(e: KeyboardEvent): void {
     if (this.inputHandler.isActive()) return;
     if (this.grid.selectedRow === null || this.grid.selectedCol === null)
@@ -210,4 +270,5 @@ class App {
   }
 }
 
+// Start the application once the DOM is ready.
 window.addEventListener("DOMContentLoaded", () => new App());

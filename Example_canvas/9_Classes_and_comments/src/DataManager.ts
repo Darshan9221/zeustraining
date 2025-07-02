@@ -7,11 +7,14 @@ import { Grid } from "./Grid";
  */
 export class DataManager {
   /**
-   * Generates 50,000 fake records using faker.js and initiates a download.
+   * Generates a specified number of fake records.
+   * @param {number} count The number of records to generate.
+   * @returns {object[]} The array of generated data.
    */
-  public static generateAndDownloadData(): void {
+  private static generateData(count: number): object[] {
     const data: object[] = [];
-    for (let i = 1; i <= 50000; i++) {
+    // Loop up to the user-specified count
+    for (let i = 1; i <= count; i++) {
       data.push({
         id: i,
         firstName: faker.person.firstName(),
@@ -20,17 +23,36 @@ export class DataManager {
         Salary: faker.number.int({ min: 20000, max: 2000000 }),
       });
     }
+    return data;
+  }
+
+  /**
+   * Generates a specified number of fake records and initiates a file download.
+   * @param {number} count The number of records to generate and download.
+   */
+  public static generateAndDownloadData(count: number): void {
+    const data = this.generateData(count); // Pass the count to the helper
     const blob = new Blob([JSON.stringify(data, null, 2)], {
       type: "application/json",
     });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "data.json";
+    a.download = `data-${count}-records.json`; // Add count to filename
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+  }
+
+  /**
+   * Generates a specified number of fake records and loads them directly into the grid.
+   * @param {Grid} grid The Grid instance to load the data into.
+   * @param {number} count The number of records to generate and load.
+   */
+  public static generateAndLoadData(grid: Grid, count: number): void {
+    const data = this.generateData(count); // Pass the count to the helper
+    this.loadJsonToGrid(data, grid);
   }
 
   /**
