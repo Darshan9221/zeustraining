@@ -4,12 +4,20 @@ import { ResizeHandler } from "./ResizeHandler";
 import { InputHandler } from "./InputHandler";
 import { DataManager } from "./DataManager";
 
+/**
+ * @class App
+ * @description Main application class that orchestrates the grid, resize, and input functionalities.
+ */
 class App {
   private grid: Grid;
   private resizeHandler: ResizeHandler;
   private inputHandler: InputHandler;
   private isDraggingSelection: boolean = false;
 
+  /**
+   * @constructor
+   * @description Initializes the App by setting up the canvas, grid dimensions, and handlers.
+   */
   constructor() {
     const canvas = document.getElementById("gridCanvas") as HTMLCanvasElement;
     const rows = 100000;
@@ -27,23 +35,38 @@ class App {
     this.grid.resizeCanvas();
   }
 
+  /**
+   * @private
+   * @method setupEventListeners
+   * @description Sets up all the event listeners for user interactions like scrolling, mouse actions, and keyboard input.
+   */
   private setupEventListeners(): void {
     const hScrollbar = document.querySelector(".scrollbar-h")!;
     const vScrollbar = document.querySelector(".scrollbar-v")!;
     const canvas = this.grid.canvas;
+    // Listens for window resize events to adjust canvas size
     window.addEventListener("resize", () => this.grid.resizeCanvas());
+    // Listens for scroll events on horizontal and vertical scrollbars
     hScrollbar.addEventListener("scroll", this.handleScroll.bind(this));
     vScrollbar.addEventListener("scroll", this.handleScroll.bind(this));
+    // Listens for mouse wheel events for custom scrolling behavior
     canvas.addEventListener("wheel", this.handleWheel.bind(this), {
       passive: false,
     });
+    // Listens for mouse down, double click, mouse move, and mouse up events on the canvas and document
     canvas.addEventListener("mousedown", this.handleMouseDown.bind(this));
     canvas.addEventListener("dblclick", this.handleCanvasDblClick.bind(this));
     document.addEventListener("mousemove", this.handleMouseDrag.bind(this));
     document.addEventListener("mouseup", this.handleMouseUp.bind(this));
+    // Listens for keyboard input
     document.addEventListener("keydown", this.handleKeydown.bind(this));
   }
 
+  /**
+   * @private
+   * @method setupUI
+   * @description Sets up the user interface elements like buttons and input fields for data generation and file loading.
+   */
   private setupUI(): void {
     const controlsContainer = document.createElement("div");
     controlsContainer.style.display = "flex";
@@ -61,6 +84,7 @@ class App {
     countInput.style.width = "120px";
     countInput.style.marginRight = "16px";
 
+    // Event listener for the "Generate and Load" button
     generateBtn.addEventListener("click", () => {
       const count = parseInt(countInput.value, 10);
       const maxRecords = this.grid.rows - 10;
@@ -82,6 +106,7 @@ class App {
     const loadFileInput = document.createElement("input");
     loadFileInput.type = "file";
     loadFileInput.accept = ".json,application/json";
+    // Event listener for file input to handle data loading from a file
     loadFileInput.addEventListener("change", (e) =>
       DataManager.handleFileLoad(e, this.grid)
     );
@@ -93,21 +118,34 @@ class App {
     document.body.insertBefore(controlsContainer, document.body.firstChild);
   }
 
+  /**
+   * @private
+   * @method handleScroll
+   * @description Handles scroll events, updating the grid's scroll position and redrawing the canvas.
+   */
   private handleScroll(): void {
     this.grid.scrollX = document.querySelector(".scrollbar-h")!.scrollLeft;
     this.grid.scrollY = document.querySelector(".scrollbar-v")!.scrollTop;
     this.grid.requestRedraw();
+    // Updates the input box position if it's active
     if (this.inputHandler.isActive()) {
       this.inputHandler.updateInputPosition();
     }
   }
 
+  /**
+   * @private
+   * @method handleWheel
+   * @description Handles mouse wheel events for smooth scrolling, supporting horizontal scroll with Shift key.
+   * @param {WheelEvent} e - The wheel event object.
+   */
   private handleWheel(e: WheelEvent): void {
     e.preventDefault();
     const hScrollbar = document.querySelector(".scrollbar-h")!;
     const vScrollbar = document.querySelector(".scrollbar-v")!;
     const rowscrollAmount = 20;
     const colscrollAmount = 100;
+    // Scrolls horizontally if Shift key is pressed, otherwise scrolls vertically
     if (e.shiftKey) {
       hScrollbar.scrollLeft += Math.sign(e.deltaY) * colscrollAmount;
     } else {
@@ -115,7 +153,14 @@ class App {
     }
   }
 
+  /**
+   * @private
+   * @method handleMouseDown
+   * @description Handles mouse down events, managing cell selection, full row selection, and full column selection.
+   * @param {MouseEvent} e - The mouse event object.
+   */
   private handleMouseDown(e: MouseEvent): void {
+    // Commits and hides the input box if it's active
     if (this.inputHandler.isActive()) {
       this.inputHandler.commitAndHideInput();
     }
@@ -178,6 +223,12 @@ class App {
     }
   }
 
+  /**
+   * @private
+   * @method handleMouseDrag
+   * @description Handles mouse drag events for selecting a range of cells and auto-scrolling during selection.
+   * @param {MouseEvent} e - The mouse event object.
+   */
   private handleMouseDrag(e: MouseEvent): void {
     if (!this.isDraggingSelection) return;
 
@@ -189,6 +240,7 @@ class App {
     const hScrollbar = document.querySelector(".scrollbar-h")!;
     const vScrollbar = document.querySelector(".scrollbar-v")!;
 
+    // Auto-scrolls the grid if the mouse drags near the edges
     if (mouseY < this.grid.headerHeight) vScrollbar.scrollTop -= scrollAmount;
     if (mouseY > rect.height) vScrollbar.scrollTop += scrollAmount;
     if (mouseX < this.grid.headerWidth) hScrollbar.scrollLeft -= scrollAmount;
@@ -197,6 +249,7 @@ class App {
     const virtualX = mouseX + this.grid.scrollX;
     const virtualY = mouseY + this.grid.scrollY;
 
+    // Determines the row and column at the current mouse position
     const row =
       this.grid.rowAtY(virtualY) ||
       (virtualY < this.grid.headerHeight ? 1 : this.grid.rows - 1);
@@ -208,6 +261,7 @@ class App {
       const endRow = Math.max(1, Math.min(row, this.grid.rows - 1));
       const endCol = Math.max(1, Math.min(col, this.grid.cols - 1));
 
+      // Updates the selection end coordinates and redraws the grid if changed
       if (
         endRow !== this.grid.selectionEndRow ||
         endCol !== this.grid.selectionEndCol
@@ -219,10 +273,22 @@ class App {
     }
   }
 
+  /**
+   * @private
+   * @method handleMouseUp
+   * @description Handles mouse up events, ending the cell selection drag operation.
+   * @param {MouseEvent} e - The mouse event object.
+   */
   private handleMouseUp(e: MouseEvent): void {
     this.isDraggingSelection = false;
   }
 
+  /**
+   * @private
+   * @method handleCanvasDblClick
+   * @description Handles double-click events on the canvas to show the input box for the selected cell.
+   * @param {MouseEvent} e - The mouse event object.
+   */
   private handleCanvasDblClick(e: MouseEvent): void {
     if (this.grid.selectedRow !== null && this.grid.selectedCol !== null) {
       this.inputHandler.showInputBox(
@@ -232,6 +298,12 @@ class App {
     }
   }
 
+  /**
+   * @private
+   * @method handleKeydown
+   * @description Handles keyboard events for navigation, cell editing (F2, Backspace, direct typing), and deleting cell content.
+   * @param {KeyboardEvent} e - The keyboard event object.
+   */
   private handleKeydown(e: KeyboardEvent): void {
     if (this.inputHandler.isActive()) return;
     if (this.grid.selectedRow === null || this.grid.selectedCol === null)
@@ -242,6 +314,7 @@ class App {
     let navigate = false;
 
     switch (e.key) {
+      case "Enter":
       case "ArrowDown":
         nextRow = Math.min(this.grid.rows - 1, this.grid.selectedRow + 1);
         navigate = true;
@@ -267,8 +340,8 @@ class App {
         }
         navigate = true;
         break;
-      case "Enter":
       case "F2":
+        // Shows the input box for editing the current cell
         this.inputHandler.showInputBox(
           this.grid.selectedRow,
           this.grid.selectedCol
@@ -276,6 +349,7 @@ class App {
         e.preventDefault();
         return;
       case "Delete":
+        // Clears the content of all cells within the current selection
         if (this.grid.selectionStartRow !== null) {
           const minRow = Math.min(
             this.grid.selectionStartRow,
@@ -303,6 +377,7 @@ class App {
         e.preventDefault();
         return;
       case "Backspace":
+        // Clears the content of the selected cell and opens the input box
         this.grid.setCellValue(
           this.grid.selectedRow,
           this.grid.selectedCol,
@@ -333,6 +408,7 @@ class App {
       return;
     }
 
+    // Handles direct typing into a cell
     if (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey) {
       e.preventDefault();
       this.grid.setCellValue(this.grid.selectedRow, this.grid.selectedCol, "");
@@ -345,4 +421,5 @@ class App {
   }
 }
 
+// Initializes the App once the DOM is fully loaded
 window.addEventListener("DOMContentLoaded", () => new App());

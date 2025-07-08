@@ -32,6 +32,14 @@ export class Grid {
   /** @type {boolean} A flag to indicate if a redraw is required on the next frame. */
   private needsRedraw: boolean = false;
 
+  /**
+   * @constructor
+   * @param {HTMLCanvasElement} canvas - The HTML canvas element to draw the grid on.
+   * @param {number} rows - The total number of rows in the grid.
+   * @param {number} cols - The total number of columns in the grid.
+   * @param {number} defaultCellWidth - The default width for each cell.
+   * @param {number} defaultCellHeight - The default height for each cell.
+   */
   constructor(
     canvas: HTMLCanvasElement,
     rows: number,
@@ -52,10 +60,21 @@ export class Grid {
     this.renderLoop();
   }
 
+  /**
+   * @private
+   * @method getDPR
+   * @description Gets the device pixel ratio for high-resolution rendering.
+   * @returns {number} The device pixel ratio.
+   */
   private getDPR(): number {
     return window.devicePixelRatio || 1;
   }
 
+  /**
+   * @public
+   * @method updateScrollbarContentSize
+   * @description Updates the size of the scrollbar content divs to match the total grid dimensions.
+   */
   public updateScrollbarContentSize(): void {
     let totalGridWidth = 0;
     for (let i = 1; i < this.cols; i++) {
@@ -71,6 +90,11 @@ export class Grid {
       totalGridHeight + "px";
   }
 
+  /**
+   * @public
+   * @method resizeCanvas
+   * @description Resizes the canvas element to fit its parent container and adjusts for device pixel ratio.
+   */
   public resizeCanvas(): void {
     const container = this.canvas.parentElement!;
     const dpr = this.getDPR();
@@ -84,6 +108,14 @@ export class Grid {
     this.requestRedraw();
   }
 
+  /**
+   * @public
+   * @method setCellValue
+   * @description Sets the value of a cell at the specified row and column. If the value is empty, the cell data is removed.
+   * @param {number} row - The row index of the cell.
+   * @param {number} col - The column index of the cell.
+   * @param {any} value - The value to set in the cell.
+   */
   public setCellValue(row: number, col: number, value: any): void {
     const key = `${row},${col}`;
     if (value === "" || value === null || value === undefined) {
@@ -93,14 +125,32 @@ export class Grid {
     }
   }
 
+  /**
+   * @public
+   * @method getCellValue
+   * @description Gets the value of a cell at the specified row and column.
+   * @param {number} row - The row index of the cell.
+   * @param {number} col - The column index of the cell.
+   * @returns {any} The value of the cell, or an empty string if no value is found.
+   */
   public getCellValue(row: number, col: number): any {
     return this.cellData.get(`${row},${col}`) || "";
   }
 
+  /**
+   * @public
+   * @method clearAllCells
+   * @description Clears all data from the grid cells.
+   */
   public clearAllCells(): void {
     this.cellData.clear();
   }
 
+  /**
+   * @private
+   * @method calculateViewport
+   * @description Calculates the visible range of rows and columns based on the current scroll position and canvas size.
+   */
   private calculateViewport(): void {
     let accY = 0;
     this.viewportStartRow = 1;
@@ -138,14 +188,22 @@ export class Grid {
       if (sumX > visibleW) break;
       this.viewportEndCol = c;
     }
+    // Updates the display element with current visible row and column range
     document.getElementById(
       "visibleInfo"
     )!.textContent = `${this.viewportStartRow}-${this.viewportEndRow}, ${this.viewportStartCol}-${this.viewportEndCol}`;
   }
 
+  /**
+   * @private
+   * @method colToExcelLabel
+   * @description Converts a column index to its corresponding Excel-style alphabetical label (e.g., 0 -> A, 1 -> B, 26 -> AA).
+   * @param {number} col - The zero-based column index.
+   * @returns {string} The Excel-style column label.
+   */
   private colToExcelLabel(col: number): string {
     let label = "";
-    col++;
+    col++; // Adjust to 1-based index for Excel conversion
     while (col > 0) {
       let rem = (col - 1) % 26;
       label = String.fromCharCode(65 + rem) + label;
@@ -154,18 +212,39 @@ export class Grid {
     return label;
   }
 
+  /**
+   * @public
+   * @method getColX
+   * @description Calculates the X-coordinate of the left edge of a given column.
+   * @param {number} col - The column index.
+   * @returns {number} The X-coordinate.
+   */
   public getColX(col: number): number {
     let x = this.headerWidth;
     for (let c = 1; c < col; c++) x += this.colWidths[c];
     return x;
   }
 
+  /**
+   * @public
+   * @method getRowY
+   * @description Calculates the Y-coordinate of the top edge of a given row.
+   * @param {number} row - The row index.
+   * @returns {number} The Y-coordinate.
+   */
   public getRowY(row: number): number {
     let y = this.headerHeight;
     for (let r = 1; r < row; r++) y += this.rowHeights[r];
     return y;
   }
 
+  /**
+   * @public
+   * @method colAtX
+   * @description Determines the column index at a given X-coordinate.
+   * @param {number} x - The X-coordinate.
+   * @returns {number | null} The column index, or null if no column is found at that coordinate.
+   */
   public colAtX(x: number): number | null {
     let px = this.headerWidth;
     for (let c = 1; c < this.cols; c++) {
@@ -175,6 +254,13 @@ export class Grid {
     return null;
   }
 
+  /**
+   * @public
+   * @method rowAtY
+   * @description Determines the row index at a given Y-coordinate.
+   * @param {number} y - The Y-coordinate.
+   * @returns {number | null} The row index, or null if no row is found at that coordinate.
+   */
   public rowAtY(y: number): number | null {
     let py = this.headerHeight;
     for (let r = 1; r < this.rows; r++) {
@@ -184,6 +270,11 @@ export class Grid {
     return null;
   }
 
+  /**
+   * @private
+   * @method renderLoop
+   * @description The main rendering loop that requests animation frames and redraws the grid if needed.
+   */
   private renderLoop(): void {
     requestAnimationFrame(this.renderLoop.bind(this));
     if (this.needsRedraw) {
@@ -192,10 +283,20 @@ export class Grid {
     }
   }
 
+  /**
+   * @public
+   * @method requestRedraw
+   * @description Sets a flag to indicate that the grid needs to be redrawn on the next animation frame.
+   */
   public requestRedraw(): void {
     this.needsRedraw = true;
   }
 
+  /**
+   * @private
+   * @method drawGrid
+   * @description Draws the entire grid, including headers, cell data, selection, and grid lines.
+   */
   private drawGrid(): void {
     this.calculateViewport();
     const ctx = this.ctx;
