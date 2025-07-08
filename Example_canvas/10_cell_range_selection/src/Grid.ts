@@ -1,5 +1,7 @@
 // src/Grid.ts
 
+import { DragState } from "./main";
+
 /**
  * Manages the core state and rendering of the spreadsheet grid.
  * Handles drawing, viewport calculation, scrolling, data, and selection.
@@ -28,6 +30,10 @@ export class Grid {
   public selectionEndCol: number | null = null;
   public highlightedRowHeader: number | null = null;
   public highlightedColHeader: number | null = null;
+  // public isDraggingSelection: boolean;
+  // public isDraggingRowHeader: boolean;
+  // public isDraggingColHeader: boolean;
+  private dragState: DragState;
 
   /** @type {boolean} A flag to indicate if a redraw is required on the next frame. */
   private needsRedraw: boolean = false;
@@ -45,7 +51,8 @@ export class Grid {
     rows: number,
     cols: number,
     defaultCellWidth: number,
-    defaultCellHeight: number
+    defaultCellHeight: number,
+    dragState: DragState
   ) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d")!;
@@ -55,6 +62,10 @@ export class Grid {
     this.headerHeight = defaultCellHeight;
     this.colWidths = Array(cols).fill(defaultCellWidth);
     this.rowHeights = Array(rows).fill(defaultCellHeight);
+    // this.isDraggingSelection = isDraggingSelection;
+    // this.isDraggingRowHeader = isDraggingRowHeader;
+    // this.isDraggingColHeader = isDraggingColHeader;
+    this.dragState = dragState;
 
     // Start the render loop.
     this.renderLoop();
@@ -382,13 +393,28 @@ export class Grid {
 
     // Draw active cell border on top of everything
     if (this.selectedRow !== null && this.selectedCol !== null) {
-      ctx.strokeStyle = "#107c41";
-      ctx.lineWidth = 2;
+      // --- THE FINAL, CORRECTED LOGIC ---
+      // The thick border should only appear when NOT dragging AND the selection is a single cell.
+      const isSingleCellSelection =
+        this.selectionStartRow === this.selectionEndRow &&
+        this.selectionStartCol === this.selectionEndCol;
+
+      const isNotDragging = !(
+        this.dragState.isDraggingSelection ||
+        this.dragState.isDraggingColHeader ||
+        this.dragState.isDraggingRowHeader
+      );
+
+      if (isSingleCellSelection && isNotDragging) {
+        // This block now ONLY runs for a single, non-dragged selection.
+        ctx.strokeStyle = "#107c41";
+        ctx.lineWidth = 2; // Thick border
+      }
       const activeCellX = this.getColX(this.selectedCol) - this.scrollX;
       const activeCellY = this.getRowY(this.selectedRow) - this.scrollY;
       ctx.strokeRect(
-        activeCellX + 1,
-        activeCellY + 1,
+        activeCellX + 1.5,
+        activeCellY + 1.5,
         this.colWidths[this.selectedCol] - 2,
         this.rowHeights[this.selectedRow] - 2
       );

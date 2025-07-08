@@ -4,6 +4,12 @@ import { ResizeHandler } from "./ResizeHandler";
 import { InputHandler } from "./InputHandler";
 import { DataManager } from "./DataManager";
 
+export interface DragState {
+  isDraggingSelection: boolean;
+  isDraggingRowHeader: boolean;
+  isDraggingColHeader: boolean;
+}
+
 /**
  * @class App
  * @description Main application class that orchestrates the grid, resize, and input functionalities.
@@ -12,7 +18,23 @@ class App {
   private grid: Grid;
   private resizeHandler: ResizeHandler;
   private inputHandler: InputHandler;
-  private isDraggingSelection: boolean = false;
+
+  // public isDraggingSelection: boolean = false;
+  // public isDraggingRowHeader: boolean = false;
+  // public isDraggingColHeader: boolean = false;
+
+  private dragState: DragState = {
+    isDraggingSelection: false,
+    isDraggingRowHeader: false,
+    isDraggingColHeader: false,
+  };
+  private startRow: number = 0;
+  private startCol: number = 0;
+
+  // --- NEW PROPERTIES FOR AUTO-SCROLL --- //
+  private autoScrollIntervalId: number | null = null;
+  private lastMouseX: number = 0;
+  private lastMouseY: number = 0;
 
   /**
    * @constructor
@@ -25,7 +47,14 @@ class App {
     const cellWidth = 64;
     const cellHeight = 20;
 
-    this.grid = new Grid(canvas, rows, cols, cellWidth, cellHeight);
+    this.grid = new Grid(
+      canvas,
+      rows,
+      cols,
+      cellWidth,
+      cellHeight,
+      this.dragState
+    );
     this.resizeHandler = new ResizeHandler(this.grid, canvas);
     this.inputHandler = new InputHandler(this.grid);
 
@@ -171,13 +200,15 @@ class App {
     const virtualX = clickX + this.grid.scrollX;
     const virtualY = clickY + this.grid.scrollY;
 
-    // FIXED: Handle full row selection
+    // Handle full row selection
     if (clickX < this.grid.headerWidth && clickY >= this.grid.headerHeight) {
+      this.dragState.isDraggingRowHeader = true;
       const row = this.grid.rowAtY(virtualY);
       if (row) {
+        this.startRow = row;
         this.grid.selectedRow = row;
         this.grid.selectedCol = 1;
-        this.grid.selectionStartRow = row;
+        this.grid.selectionStartRow = this.startRow;
         this.grid.selectionEndRow = row;
         this.grid.selectionStartCol = 1;
         this.grid.selectionEndCol = this.grid.cols - 1;
@@ -186,13 +217,15 @@ class App {
       return;
     }
 
-    // FIXED: Handle full column selection
+    // Handle full column selection
     if (clickY < this.grid.headerHeight && clickX >= this.grid.headerWidth) {
+      this.dragState.isDraggingColHeader = true;
       const col = this.grid.colAtX(virtualX);
       if (col) {
+        this.startCol = col;
         this.grid.selectedCol = col;
         this.grid.selectedRow = 1;
-        this.grid.selectionStartCol = col;
+        this.grid.selectionStartCol = this.startCol;
         this.grid.selectionEndCol = col;
         this.grid.selectionStartRow = 1;
         this.grid.selectionEndRow = this.grid.rows - 1;
@@ -209,7 +242,7 @@ class App {
     const col = this.grid.colAtX(virtualX);
 
     if (row && row < this.grid.rows && col && col < this.grid.cols) {
-      this.isDraggingSelection = true;
+      this.dragState.isDraggingSelection = true;
 
       this.grid.selectedRow = row;
       this.grid.selectedCol = col;
@@ -230,24 +263,53 @@ class App {
    * @param {MouseEvent} e - The mouse event object.
    */
   private handleMouseDrag(e: MouseEvent): void {
-    if (!this.isDraggingSelection) return;
-
     const rect = this.grid.canvas.getBoundingClientRect();
     const mouseX = e.clientX - rect.left;
     const mouseY = e.clientY - rect.top;
-
-    const scrollAmount = 20;
-    const hScrollbar = document.querySelector(".scrollbar-h")!;
-    const vScrollbar = document.querySelector(".scrollbar-v")!;
-
-    // Auto-scrolls the grid if the mouse drags near the edges
-    if (mouseY < this.grid.headerHeight) vScrollbar.scrollTop -= scrollAmount;
-    if (mouseY > rect.height) vScrollbar.scrollTop += scrollAmount;
-    if (mouseX < this.grid.headerWidth) hScrollbar.scrollLeft -= scrollAmount;
-    if (mouseX > rect.width) hScrollbar.scrollLeft += scrollAmount;
-
     const virtualX = mouseX + this.grid.scrollX;
     const virtualY = mouseY + this.grid.scrollY;
+
+    if (this.dragState.isDraggingRowHeader) {
+      const row = this.grid.rowAtY(virtualY);
+      if (row) {
+        this.grid.selectionStartRow = this.startRow;
+        this.grid.selectionEndRow = row;
+        this.grid.selectionStartCol = 1;
+        this.grid.selectionEndCol = this.grid.cols - 1;
+        this.grid.requestRedraw();
+      }
+      return;
+    }
+
+    if (this.dragState.isDraggingColHeader) {
+      const col = this.grid.colAtX(virtualX);
+      if (col) {
+        this.grid.selectionStartCol = this.startCol;
+        this.grid.selectionEndCol = col;
+        this.grid.selectionStartRow = 1;
+        this.grid.selectionEndRow = this.grid.rows - 1;
+        this.grid.requestRedraw();
+      }
+      return;
+    }
+    if (!this.dragState.isDraggingSelection) return;
+
+    // const scrollAmount = 10;
+    // const hScrollbar = document.querySelector(".scrollbar-h")!;
+    // const vScrollbar = document.querySelector(".scrollbar-v")!;
+
+    // // Auto-scrolls the grid if the mouse drags near the edges
+    // if (mouseY < this.grid.headerHeight) vScrollbar.scrollTop -= scrollAmount;
+    // if (mouseY > rect.height) vScrollbar.scrollTop += scrollAmount;
+    // if (mouseX < this.grid.headerWidth) hScrollbar.scrollLeft -= scrollAmount;
+    // if (mouseX > rect.width) hScrollbar.scrollLeft += scrollAmount;
+
+    // Store the latest mouse position.
+    this.lastMouseX = e.clientX;
+    this.lastMouseY = e.clientY;
+
+    // Manage the auto-scroll interval (start/stop it as needed).
+    this.handleAutoScroll();
 
     // Determines the row and column at the current mouse position
     const row =
@@ -280,7 +342,17 @@ class App {
    * @param {MouseEvent} e - The mouse event object.
    */
   private handleMouseUp(e: MouseEvent): void {
-    this.isDraggingSelection = false;
+    this.dragState.isDraggingSelection = false;
+    this.dragState.isDraggingRowHeader = false;
+    this.dragState.isDraggingColHeader = false;
+
+    // Crucial: Stop any auto-scrolling when the mouse is released.
+    if (this.autoScrollIntervalId) {
+      clearInterval(this.autoScrollIntervalId);
+      this.autoScrollIntervalId = null;
+    }
+
+    this.grid.requestRedraw();
   }
 
   /**
@@ -295,6 +367,74 @@ class App {
         this.grid.selectedRow,
         this.grid.selectedCol
       );
+    }
+  }
+
+  /**
+   * @private
+   * @method handleAutoScroll
+   * @description NEW: Manages the starting and stopping of the auto-scroll interval.
+   */
+  private handleAutoScroll(): void {
+    const rect = this.grid.canvas.getBoundingClientRect();
+    const scrollAmount = 20;
+    let scrollX = 0;
+    let scrollY = 0;
+
+    // Check for vertical scroll.
+    // The top boundary is now the bottom of the column header area.
+    if (this.lastMouseY < rect.top + this.grid.headerHeight) {
+      scrollY = -scrollAmount;
+    } else if (this.lastMouseY > rect.bottom) {
+      scrollY = scrollAmount;
+    }
+
+    // Check for horizontal scroll.
+    // The left boundary is now the right side of the row header area.
+    if (this.lastMouseX < rect.left + this.grid.headerWidth) {
+      scrollX = -scrollAmount;
+    } else if (this.lastMouseX > rect.right) {
+      // FIXED TYPO: This is now positive for right-scroll.
+      scrollX = scrollAmount;
+    }
+
+    if (scrollX !== 0 || scrollY !== 0) {
+      // If we need to scroll and there's no interval running, start one.
+      if (this.autoScrollIntervalId === null) {
+        this.autoScrollIntervalId = window.setInterval(() => {
+          const hScrollbar = document.querySelector(".scrollbar-h")!;
+          const vScrollbar = document.querySelector(".scrollbar-v")!;
+          hScrollbar.scrollLeft += scrollX;
+          vScrollbar.scrollTop += scrollY;
+
+          // After scrolling, we must update the selection end based on the new virtual coordinates
+          const currentRect = this.grid.canvas.getBoundingClientRect();
+          const mouseX = this.lastMouseX - currentRect.left;
+          const mouseY = this.lastMouseY - currentRect.top;
+          const virtualX = mouseX + this.grid.scrollX;
+          const virtualY = mouseY + this.grid.scrollY;
+
+          const endRow = this.grid.rowAtY(virtualY);
+          const endCol = this.grid.colAtX(virtualX);
+
+          // Update the appropriate selection end based on drag mode
+          if (this.dragState.isDraggingRowHeader && endRow)
+            this.grid.selectionEndRow = endRow;
+          else if (this.dragState.isDraggingColHeader && endCol)
+            this.grid.selectionEndCol = endCol;
+          else if (this.dragState.isDraggingSelection) {
+            if (endRow) this.grid.selectionEndRow = endRow;
+            if (endCol) this.grid.selectionEndCol = endCol;
+          }
+          this.grid.requestRedraw();
+        }, 50); // scrolls every 50ms
+      }
+    } else {
+      // If we are inside the canvas, clear any existing interval.
+      if (this.autoScrollIntervalId !== null) {
+        clearInterval(this.autoScrollIntervalId);
+        this.autoScrollIntervalId = null;
+      }
     }
   }
 
@@ -316,7 +456,7 @@ class App {
     switch (e.key) {
       case "Enter":
       case "ArrowDown":
-        nextRow = Math.min(this.grid.rows - 1, this.grid.selectedRow + 1);
+        nextRow = Math.min(this.grid.rows - 2, this.grid.selectedRow + 1);
         navigate = true;
         break;
       case "ArrowUp":
@@ -328,7 +468,7 @@ class App {
         navigate = true;
         break;
       case "ArrowRight":
-        nextCol = Math.min(this.grid.cols - 1, this.grid.selectedCol + 1);
+        nextCol = Math.min(this.grid.cols - 2, this.grid.selectedCol + 1);
         navigate = true;
         break;
       case "Tab":

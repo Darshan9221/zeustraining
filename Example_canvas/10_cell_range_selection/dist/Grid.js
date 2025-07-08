@@ -4,7 +4,15 @@
  * Handles drawing, viewport calculation, scrolling, data, and selection.
  */
 export class Grid {
-    constructor(canvas, rows, cols, defaultCellWidth, defaultCellHeight) {
+    /**
+     * @constructor
+     * @param {HTMLCanvasElement} canvas - The HTML canvas element to draw the grid on.
+     * @param {number} rows - The total number of rows in the grid.
+     * @param {number} cols - The total number of columns in the grid.
+     * @param {number} defaultCellWidth - The default width for each cell.
+     * @param {number} defaultCellHeight - The default height for each cell.
+     */
+    constructor(canvas, rows, cols, defaultCellWidth, defaultCellHeight, dragState) {
         this.cellData = new Map();
         this.scrollX = 0;
         this.scrollY = 0;
@@ -30,12 +38,27 @@ export class Grid {
         this.headerHeight = defaultCellHeight;
         this.colWidths = Array(cols).fill(defaultCellWidth);
         this.rowHeights = Array(rows).fill(defaultCellHeight);
+        // this.isDraggingSelection = isDraggingSelection;
+        // this.isDraggingRowHeader = isDraggingRowHeader;
+        // this.isDraggingColHeader = isDraggingColHeader;
+        this.dragState = dragState;
         // Start the render loop.
         this.renderLoop();
     }
+    /**
+     * @private
+     * @method getDPR
+     * @description Gets the device pixel ratio for high-resolution rendering.
+     * @returns {number} The device pixel ratio.
+     */
     getDPR() {
         return window.devicePixelRatio || 1;
     }
+    /**
+     * @public
+     * @method updateScrollbarContentSize
+     * @description Updates the size of the scrollbar content divs to match the total grid dimensions.
+     */
     updateScrollbarContentSize() {
         let totalGridWidth = 0;
         for (let i = 1; i < this.cols; i++) {
@@ -50,6 +73,11 @@ export class Grid {
         document.getElementById("vScrollContent").style.height =
             totalGridHeight + "px";
     }
+    /**
+     * @public
+     * @method resizeCanvas
+     * @description Resizes the canvas element to fit its parent container and adjusts for device pixel ratio.
+     */
     resizeCanvas() {
         const container = this.canvas.parentElement;
         const dpr = this.getDPR();
@@ -62,6 +90,14 @@ export class Grid {
         this.updateScrollbarContentSize();
         this.requestRedraw();
     }
+    /**
+     * @public
+     * @method setCellValue
+     * @description Sets the value of a cell at the specified row and column. If the value is empty, the cell data is removed.
+     * @param {number} row - The row index of the cell.
+     * @param {number} col - The column index of the cell.
+     * @param {any} value - The value to set in the cell.
+     */
     setCellValue(row, col, value) {
         const key = `${row},${col}`;
         if (value === "" || value === null || value === undefined) {
@@ -71,12 +107,30 @@ export class Grid {
             this.cellData.set(key, value);
         }
     }
+    /**
+     * @public
+     * @method getCellValue
+     * @description Gets the value of a cell at the specified row and column.
+     * @param {number} row - The row index of the cell.
+     * @param {number} col - The column index of the cell.
+     * @returns {any} The value of the cell, or an empty string if no value is found.
+     */
     getCellValue(row, col) {
         return this.cellData.get(`${row},${col}`) || "";
     }
+    /**
+     * @public
+     * @method clearAllCells
+     * @description Clears all data from the grid cells.
+     */
     clearAllCells() {
         this.cellData.clear();
     }
+    /**
+     * @private
+     * @method calculateViewport
+     * @description Calculates the visible range of rows and columns based on the current scroll position and canvas size.
+     */
     calculateViewport() {
         let accY = 0;
         this.viewportStartRow = 1;
@@ -118,11 +172,19 @@ export class Grid {
                 break;
             this.viewportEndCol = c;
         }
+        // Updates the display element with current visible row and column range
         document.getElementById("visibleInfo").textContent = `${this.viewportStartRow}-${this.viewportEndRow}, ${this.viewportStartCol}-${this.viewportEndCol}`;
     }
+    /**
+     * @private
+     * @method colToExcelLabel
+     * @description Converts a column index to its corresponding Excel-style alphabetical label (e.g., 0 -> A, 1 -> B, 26 -> AA).
+     * @param {number} col - The zero-based column index.
+     * @returns {string} The Excel-style column label.
+     */
     colToExcelLabel(col) {
         let label = "";
-        col++;
+        col++; // Adjust to 1-based index for Excel conversion
         while (col > 0) {
             let rem = (col - 1) % 26;
             label = String.fromCharCode(65 + rem) + label;
@@ -130,18 +192,39 @@ export class Grid {
         }
         return label;
     }
+    /**
+     * @public
+     * @method getColX
+     * @description Calculates the X-coordinate of the left edge of a given column.
+     * @param {number} col - The column index.
+     * @returns {number} The X-coordinate.
+     */
     getColX(col) {
         let x = this.headerWidth;
         for (let c = 1; c < col; c++)
             x += this.colWidths[c];
         return x;
     }
+    /**
+     * @public
+     * @method getRowY
+     * @description Calculates the Y-coordinate of the top edge of a given row.
+     * @param {number} row - The row index.
+     * @returns {number} The Y-coordinate.
+     */
     getRowY(row) {
         let y = this.headerHeight;
         for (let r = 1; r < row; r++)
             y += this.rowHeights[r];
         return y;
     }
+    /**
+     * @public
+     * @method colAtX
+     * @description Determines the column index at a given X-coordinate.
+     * @param {number} x - The X-coordinate.
+     * @returns {number | null} The column index, or null if no column is found at that coordinate.
+     */
     colAtX(x) {
         let px = this.headerWidth;
         for (let c = 1; c < this.cols; c++) {
@@ -151,6 +234,13 @@ export class Grid {
         }
         return null;
     }
+    /**
+     * @public
+     * @method rowAtY
+     * @description Determines the row index at a given Y-coordinate.
+     * @param {number} y - The Y-coordinate.
+     * @returns {number | null} The row index, or null if no row is found at that coordinate.
+     */
     rowAtY(y) {
         let py = this.headerHeight;
         for (let r = 1; r < this.rows; r++) {
@@ -160,6 +250,11 @@ export class Grid {
         }
         return null;
     }
+    /**
+     * @private
+     * @method renderLoop
+     * @description The main rendering loop that requests animation frames and redraws the grid if needed.
+     */
     renderLoop() {
         requestAnimationFrame(this.renderLoop.bind(this));
         if (this.needsRedraw) {
@@ -167,9 +262,19 @@ export class Grid {
             this.needsRedraw = false;
         }
     }
+    /**
+     * @public
+     * @method requestRedraw
+     * @description Sets a flag to indicate that the grid needs to be redrawn on the next animation frame.
+     */
     requestRedraw() {
         this.needsRedraw = true;
     }
+    /**
+     * @private
+     * @method drawGrid
+     * @description Draws the entire grid, including headers, cell data, selection, and grid lines.
+     */
     drawGrid() {
         this.calculateViewport();
         const ctx = this.ctx;
@@ -235,12 +340,24 @@ export class Grid {
         ctx.stroke();
         // Draw active cell border on top of everything
         if (this.selectedRow !== null && this.selectedCol !== null) {
-            ctx.strokeStyle = "#107c41";
-            ctx.lineWidth = 2;
+            // --- THE FINAL, CORRECTED LOGIC ---
+            // The thick border should only appear when NOT dragging AND the selection is a single cell.
+            const isSingleCellSelection = this.selectionStartRow === this.selectionEndRow &&
+                this.selectionStartCol === this.selectionEndCol;
+            const isNotDragging = !(this.dragState.isDraggingSelection ||
+                this.dragState.isDraggingColHeader ||
+                this.dragState.isDraggingRowHeader);
+            if (isSingleCellSelection && isNotDragging) {
+                // This block now ONLY runs for a single, non-dragged selection.
+                ctx.strokeStyle = "#107c41";
+                ctx.lineWidth = 2; // Thick border
+            }
             const activeCellX = this.getColX(this.selectedCol) - this.scrollX;
             const activeCellY = this.getRowY(this.selectedRow) - this.scrollY;
-            ctx.strokeRect(activeCellX + 1, activeCellY + 1, this.colWidths[this.selectedCol] - 2, this.rowHeights[this.selectedRow] - 2);
-            ctx.lineWidth = 1;
+            ctx.strokeRect(activeCellX + 1.5, activeCellY + 1.5, this.colWidths[this.selectedCol] - 2, this.rowHeights[this.selectedRow] - 2);
+            if (!isSingleCellSelection && !isNotDragging) {
+                ctx.lineWidth = 1;
+            }
         }
         // Draw cell data
         ctx.font = "14px Arial";
