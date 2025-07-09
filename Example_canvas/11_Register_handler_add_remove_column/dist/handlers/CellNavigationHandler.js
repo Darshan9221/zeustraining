@@ -3,9 +3,10 @@
  * @description Manages all keyboard-driven cell navigation and cell content manipulation.
  */
 export class CellNavigationHandler {
-    constructor(grid, inputHandler) {
+    constructor(grid, inputHandler, dragState) {
         this.grid = grid;
         this.inputHandler = inputHandler;
+        this.dragState = dragState;
     }
     /**
      * @public
@@ -14,6 +15,13 @@ export class CellNavigationHandler {
      * @param {KeyboardEvent} e - The keyboard event object.
      */
     handleKeyDown(e) {
+        // Prevent any keyboard actions while the user is dragging or resizing with the mouse.
+        if (this.dragState.isDraggingSelection ||
+            this.dragState.isDraggingRowHeader ||
+            this.dragState.isDraggingColHeader ||
+            this.dragState.isResizing) {
+            return;
+        }
         if (this.inputHandler.isActive())
             return;
         if (this.grid.selectedRow === null || this.grid.selectedCol === null)
@@ -76,17 +84,33 @@ export class CellNavigationHandler {
         }
         if (navigate) {
             e.preventDefault();
-            this.grid.selectedRow = nextRow;
-            this.grid.selectedCol = nextCol;
-            this.grid.selectionStartRow = nextRow;
-            this.grid.selectionStartCol = nextCol;
-            this.grid.selectionEndRow = nextRow;
-            this.grid.selectionEndCol = nextCol;
+            // --- MODIFIED --- This is the core logic for the new feature.
+            if (e.shiftKey) {
+                // --- SHIFT is pressed: Extend the selection ---
+                // The selection start (anchor) remains unchanged.
+                // We only move the active cell and the selection end.
+                this.grid.selectedRow = nextRow;
+                this.grid.selectedCol = nextCol;
+                this.grid.selectionEndRow = nextRow;
+                this.grid.selectionEndCol = nextCol;
+            }
+            else {
+                // --- SHIFT is NOT pressed: Move the selection ---
+                // Move the active cell, the start, and the end all to the new location.
+                this.grid.selectedRow = nextRow;
+                this.grid.selectedCol = nextCol;
+                this.grid.selectionStartRow = nextRow;
+                this.grid.selectionStartCol = nextCol;
+                this.grid.selectionEndRow = nextRow;
+                this.grid.selectionEndCol = nextCol;
+            }
+            // These actions are the same for both cases.
             document.getElementById("selectedInfo").textContent = `R${nextRow}, C${nextCol}`;
             this.inputHandler.ensureCellVisible(nextRow, nextCol);
             this.grid.requestRedraw();
             return;
         }
+        // This handles direct typing into a cell
         if (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey) {
             e.preventDefault();
             this.grid.setCellValue(this.grid.selectedRow, this.grid.selectedCol, "");

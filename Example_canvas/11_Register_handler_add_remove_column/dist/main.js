@@ -25,7 +25,7 @@ class App {
             isDraggingSelection: false,
             isDraggingRowHeader: false,
             isDraggingColHeader: false,
-            isResizing: false, // Initialize the new state
+            isResizing: false,
         };
         const canvas = document.getElementById("gridCanvas");
         const rows = 100000;
@@ -35,13 +35,13 @@ class App {
         this.grid = new Grid(canvas, rows, cols, cellWidth, cellHeight, this.dragState);
         // Initialize all feature handlers
         this.inputHandler = new InputHandler(this.grid);
-        // Pass the shared dragState to the resize handlers.
         this.columnResizeHandler = new ColumnResizeHandler(this.grid, canvas, this.dragState);
         this.rowResizeHandler = new RowResizeHandler(this.grid, canvas, this.dragState);
         this.rowSelectionHandler = new RowSelectionHandler(this.grid, this.dragState);
         this.columnSelectionHandler = new ColumnSelectionHandler(this.grid, this.dragState);
         this.cellSelectionHandler = new CellSelectionHandler(this.grid, this.dragState);
-        this.cellNavigationHandler = new CellNavigationHandler(this.grid, this.inputHandler);
+        // --- MODIFIED --- Pass the dragState to the navigation handler
+        this.cellNavigationHandler = new CellNavigationHandler(this.grid, this.inputHandler, this.dragState);
         this.rangeSelectionHandler = new RangeSelectionHandler(this.grid, this.dragState);
         this.autoScrollHandler = new AutoScrollHandler(this.grid, canvas, this.dragState);
         this.setupEventListeners();

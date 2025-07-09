@@ -45,8 +45,10 @@ export class GridCalculator {
     this.model.viewportEndRow = this.model.viewportStartRow;
     for (let r = this.model.viewportStartRow; r < this.model.rows; r++) {
       if (r >= this.model.rowHeights.length) break;
+      // --- MODIFIED --- Only include rows that will fit fully on screen.
+      // This ensures the bottom border of the last visible row is always rendered.
+      if (sumY + this.model.rowHeights[r] > visibleH) break;
       sumY += this.model.rowHeights[r];
-      if (sumY > visibleH) break;
       this.model.viewportEndRow = r;
     }
 
@@ -64,8 +66,10 @@ export class GridCalculator {
     this.model.viewportEndCol = this.model.viewportStartCol;
     for (let c = this.model.viewportStartCol; c < this.model.cols; c++) {
       if (c >= this.model.colWidths.length) break;
+      // --- MODIFIED --- Only include columns that will fit fully on screen.
+      // This ensures the right border of the last visible column is always rendered.
+      if (sumX + this.model.colWidths[c] > visibleW) break;
       sumX += this.model.colWidths[c];
-      if (sumX > visibleW) break;
       this.model.viewportEndCol = c;
     }
 
