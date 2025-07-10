@@ -1,4 +1,3 @@
-// src/InputHandler.ts
 import { Grid } from "./Grid";
 
 /**

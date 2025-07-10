@@ -1,7 +1,6 @@
-// src/GridRenderer.ts
 import { GridModel } from "./GridModel";
 import { GridCalculator } from "./GridCalculator";
-import { DragState } from "../main";
+import { Grid } from "../Grid";
 
 /**
  * Handles all rendering logic for the grid.
@@ -10,21 +9,21 @@ import { DragState } from "../main";
 export class GridRenderer {
   private model: GridModel;
   private calculator: GridCalculator;
+  private grid: Grid;
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
-  private dragState: DragState;
 
   constructor(
     model: GridModel,
     calculator: GridCalculator,
-    canvas: HTMLCanvasElement,
-    dragState: DragState
+    grid: Grid,
+    canvas: HTMLCanvasElement
   ) {
     this.model = model;
     this.calculator = calculator;
+    this.grid = grid;
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d")!;
-    this.dragState = dragState;
   }
 
   /**
@@ -76,12 +75,7 @@ export class GridRenderer {
     const isFullColSelection =
       hasSelection && minRow === 1 && maxRow === this.model.rows - 1;
 
-    const isNotDragging = !(
-      this.dragState.isDraggingSelection ||
-      this.dragState.isDraggingRowHeader ||
-      this.dragState.isDraggingColHeader ||
-      this.dragState.isResizing
-    );
+    const isNotDragging = !this.grid.isDragging();
 
     // --- STEP 2: DRAW THE GRID CONTENT WITHIN A CLIPPED AREA ---
     ctx.save();

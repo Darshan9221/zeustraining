@@ -1,22 +1,39 @@
 /**
  * @class RangeSelectionHandler
- * @description Manages the extension of a cell selection range when dragging.
+ * @description Manages the selection of a single cell or a range of cells.
  */
 export class RangeSelectionHandler {
-    constructor(grid, dragState) {
+    constructor(grid) {
         this.grid = grid;
-        this.dragState = dragState;
     }
-    /**
-     * @public
-     * @method handleMouseDrag
-     * @description Handles mouse drag events to extend the cell selection range.
-     * @param {MouseEvent} e - The mouse event object.
-     */
-    handleMouseDrag(e) {
-        // This handler only acts if a cell selection drag is in progress.
-        if (!this.dragState.isDraggingSelection)
+    hitTest(e) {
+        const rect = this.grid.canvas.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        const clickY = e.clientY - rect.top;
+        // Hit is true if not in any header area.
+        return clickX >= this.grid.headerWidth && clickY >= this.grid.headerHeight;
+    }
+    handleMouseDown(e) {
+        const rect = this.grid.canvas.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        const clickY = e.clientY - rect.top;
+        const virtualX = clickX + this.grid.scrollX;
+        const virtualY = clickY + this.grid.scrollY;
+        const row = this.grid.rowAtY(virtualY);
+        const col = this.grid.colAtX(virtualX);
+        if (row === undefined || col === undefined || row === null || col === null)
             return;
+        // Update grid state for the newly selected cell
+        this.grid.selectedRow = row;
+        this.grid.selectedCol = col;
+        this.grid.selectionStartRow = row;
+        this.grid.selectionStartCol = col;
+        this.grid.selectionEndRow = row;
+        this.grid.selectionEndCol = col;
+        document.getElementById("selectedInfo").textContent = `R${row}, C${col}`;
+        this.grid.requestRedraw();
+    }
+    handleMouseDrag(e) {
         const rect = this.grid.canvas.getBoundingClientRect();
         const mouseX = e.clientX - rect.left;
         const mouseY = e.clientY - rect.top;
@@ -37,5 +54,9 @@ export class RangeSelectionHandler {
                 this.grid.requestRedraw();
             }
         }
+    }
+    handleMouseUp(e) {
+        // No specific action on mouse up for range selection,
+        // as the state is already updated during drag.
     }
 }

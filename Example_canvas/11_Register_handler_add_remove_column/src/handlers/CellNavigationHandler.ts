@@ -1,7 +1,6 @@
-// src/handlers/CellNavigationHandler.ts
 import { Grid } from "../Grid";
+import { GridInteractionHandler } from "../GridInteractionHandler";
 import { InputHandler } from "../InputHandler";
-import { DragState } from "../main";
 
 /**
  * @class CellNavigationHandler
@@ -10,12 +9,16 @@ import { DragState } from "../main";
 export class CellNavigationHandler {
   private grid: Grid;
   private inputHandler: InputHandler;
-  private dragState: DragState;
+  private interactionHandler: GridInteractionHandler;
 
-  constructor(grid: Grid, inputHandler: InputHandler, dragState: DragState) {
+  constructor(
+    grid: Grid,
+    inputHandler: InputHandler,
+    interactionHandler: GridInteractionHandler
+  ) {
     this.grid = grid;
     this.inputHandler = inputHandler;
-    this.dragState = dragState;
+    this.interactionHandler = interactionHandler;
   }
 
   /**
@@ -26,12 +29,7 @@ export class CellNavigationHandler {
    */
   public handleKeyDown(e: KeyboardEvent): void {
     // Prevent any keyboard actions while the user is dragging or resizing with the mouse.
-    if (
-      this.dragState.isDraggingSelection ||
-      this.dragState.isDraggingRowHeader ||
-      this.dragState.isDraggingColHeader ||
-      this.dragState.isResizing
-    ) {
+    if (this.interactionHandler.isDragging()) {
       return;
     }
 

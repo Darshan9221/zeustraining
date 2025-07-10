@@ -1,0 +1,2 @@
+// src/InteractionTypes.ts
+export {};

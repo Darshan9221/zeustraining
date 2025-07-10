@@ -1,8 +1,7 @@
-// src/Grid.ts
-import { DragState } from "./main";
 import { GridModel } from "./gridDrawHandlers/GridModel";
 import { GridCalculator } from "./gridDrawHandlers/GridCalculator";
 import { GridRenderer } from "./gridDrawHandlers/GridRenderer";
+import { GridInteractionHandler } from "./GridInteractionHandler";
 
 /**
  * The main Grid facade class.
@@ -14,6 +13,7 @@ export class Grid {
   private model: GridModel;
   private calculator: GridCalculator;
   private renderer: GridRenderer;
+  private interactionHandler: GridInteractionHandler | null = null;
 
   private needsRedraw: boolean = false;
 
@@ -102,8 +102,7 @@ export class Grid {
     rows: number,
     cols: number,
     defaultCellWidth: number,
-    defaultCellHeight: number,
-    dragState: DragState
+    defaultCellHeight: number
   ) {
     this.canvas = canvas;
     this.model = new GridModel(rows, cols, defaultCellWidth, defaultCellHeight);
@@ -111,14 +110,22 @@ export class Grid {
     this.renderer = new GridRenderer(
       this.model,
       this.calculator,
-      this.canvas,
-      dragState
+      this,
+      this.canvas
     );
 
     this.renderLoop();
   }
 
   // --- Public API ---
+
+  public setInteractionHandler(handler: GridInteractionHandler): void {
+    this.interactionHandler = handler;
+  }
+
+  public isDragging(): boolean {
+    return this.interactionHandler?.isDragging() || false;
+  }
 
   public setCellValue(row: number, col: number, value: any): void {
     this.model.setCellValue(row, col, value);

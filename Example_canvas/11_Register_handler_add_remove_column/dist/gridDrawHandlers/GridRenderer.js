@@ -3,12 +3,12 @@
  * It uses a GridModel for data and a GridCalculator for positioning.
  */
 export class GridRenderer {
-    constructor(model, calculator, canvas, dragState) {
+    constructor(model, calculator, grid, canvas) {
         this.model = model;
         this.calculator = calculator;
+        this.grid = grid;
         this.canvas = canvas;
         this.ctx = canvas.getContext("2d");
-        this.dragState = dragState;
     }
     /**
      * @private
@@ -52,10 +52,7 @@ export class GridRenderer {
         // --- MODIFIED --- Determine if the selection is for a full row or column.
         const isFullRowSelection = hasSelection && minCol === 1 && maxCol === this.model.cols - 1;
         const isFullColSelection = hasSelection && minRow === 1 && maxRow === this.model.rows - 1;
-        const isNotDragging = !(this.dragState.isDraggingSelection ||
-            this.dragState.isDraggingRowHeader ||
-            this.dragState.isDraggingColHeader ||
-            this.dragState.isResizing);
+        const isNotDragging = !this.grid.isDragging();
         // --- STEP 2: DRAW THE GRID CONTENT WITHIN A CLIPPED AREA ---
         ctx.save();
         ctx.beginPath();

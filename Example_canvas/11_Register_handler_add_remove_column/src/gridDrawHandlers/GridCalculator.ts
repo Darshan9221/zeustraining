@@ -1,4 +1,3 @@
-// src/GridCalculator.ts
 import { GridModel } from "./GridModel";
 
 /**

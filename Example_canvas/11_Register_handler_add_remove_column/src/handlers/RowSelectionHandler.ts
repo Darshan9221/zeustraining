@@ -1,72 +1,58 @@
-// src/handlers/RowSelectionHandler.ts
 import { Grid } from "../Grid";
-import { DragState } from "../main";
+import { IInteractionHandler } from "../InteractionTypes";
 
 /**
  * @class RowSelectionHandler
  * @description Manages the selection of full rows in the grid.
  */
-export class RowSelectionHandler {
+export class RowSelectionHandler implements IInteractionHandler {
   private grid: Grid;
-  private dragState: DragState;
-  private startRow: number = 0;
+  private startRow: number | null = null;
 
-  constructor(grid: Grid, dragState: DragState) {
+  constructor(grid: Grid) {
     this.grid = grid;
-    this.dragState = dragState;
   }
 
-  /**
-   * @public
-   * @method handleMouseDown
-   * @description Handles mouse down events on the row header to initiate full row selection.
-   * @param {MouseEvent} e - The mouse event object.
-   */
-  public handleMouseDown(e: MouseEvent): void {
+  public hitTest(e: MouseEvent): boolean {
     const rect = this.grid.canvas.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
     const clickY = e.clientY - rect.top;
-    const virtualY = clickY + this.grid.scrollY;
-    if (this.dragState.isResizing) {
-      return;
-    }
-
-    if (clickX < this.grid.headerWidth && clickY >= this.grid.headerHeight) {
-      this.dragState.isDraggingRowHeader = true;
-      const row = this.grid.rowAtY(virtualY);
-      if (row) {
-        this.startRow = row;
-        this.grid.selectedRow = row;
-        this.grid.selectedCol = 1;
-        this.grid.selectionStartRow = this.startRow;
-        this.grid.selectionEndRow = row;
-        this.grid.selectionStartCol = 1;
-        this.grid.selectionEndCol = this.grid.cols - 1;
-        this.grid.requestRedraw();
-      }
-    }
+    return clickX < this.grid.headerWidth && clickY >= this.grid.headerHeight;
   }
 
-  /**
-   * @public
-   * @method handleMouseDrag
-   * @description Handles mouse drag events to extend the full row selection.
-   * @param {MouseEvent} e - The mouse event object.
-   */
+  public handleMouseDown(e: MouseEvent): void {
+    const rect = this.grid.canvas.getBoundingClientRect();
+    const clickY = e.clientY - rect.top;
+    const virtualY = clickY + this.grid.scrollY;
+    const row = this.grid.rowAtY(virtualY);
+
+    if (row === undefined || row === null) return;
+
+    this.startRow = row;
+    this.grid.selectedRow = row;
+    this.grid.selectedCol = 1;
+    this.grid.selectionStartRow = this.startRow;
+    this.grid.selectionEndRow = row;
+    this.grid.selectionStartCol = 1;
+    this.grid.selectionEndCol = this.grid.cols - 1;
+    this.grid.requestRedraw();
+  }
+
   public handleMouseDrag(e: MouseEvent): void {
-    if (!this.dragState.isDraggingRowHeader) return;
+    if (this.startRow === null) return;
 
     const rect = this.grid.canvas.getBoundingClientRect();
     const mouseY = e.clientY - rect.top;
     const virtualY = mouseY + this.grid.scrollY;
-
     const row = this.grid.rowAtY(virtualY);
-    if (row) {
-      this.grid.selectionStartRow = this.startRow;
+
+    if (row && row !== this.grid.selectionEndRow) {
       this.grid.selectionEndRow = row;
-      this.grid.selectionStartCol = 1;
-      this.grid.selectionEndCol = this.grid.cols - 1;
       this.grid.requestRedraw();
     }
+  }
+
+  public handleMouseUp(e: MouseEvent): void {
+    this.startRow = null;
   }
 }

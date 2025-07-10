@@ -1,4 +1,3 @@
-// src/main.ts
 import { Grid } from "./Grid";
 import { InputHandler } from "./InputHandler";
 import { DataManager } from "./DataManager";
@@ -8,15 +7,9 @@ import { RowSelectionHandler } from "./handlers/RowSelectionHandler";
 import { ColumnSelectionHandler } from "./handlers/ColumnSelectionHandler";
 import { RangeSelectionHandler } from "./handlers/RangeSelectionHandler";
 import { AutoScrollHandler } from "./handlers/AutoScrollHandler";
-import { CellSelectionHandler } from "./handlers/CellSelectionHandler";
 import { CellNavigationHandler } from "./handlers/CellNavigationHandler";
-
-export interface DragState {
-  isDraggingSelection: boolean;
-  isDraggingRowHeader: boolean;
-  isDraggingColHeader: boolean;
-  isResizing: boolean; // Flag to indicate a column/row resize is active
-}
+import { ActionLogger } from "./ActionLogger";
+import { GridInteractionHandler } from "./GridInteractionHandler";
 
 /**
  * @class App
@@ -25,24 +18,9 @@ export interface DragState {
 class App {
   private grid: Grid;
   private inputHandler: InputHandler;
-
-  // Handlers for specific features
-  private columnResizeHandler: ColumnResizeHandler;
-  private rowResizeHandler: RowResizeHandler;
-  private rowSelectionHandler: RowSelectionHandler;
-  private columnSelectionHandler: ColumnSelectionHandler;
-  private cellSelectionHandler: CellSelectionHandler;
-  private rangeSelectionHandler: RangeSelectionHandler;
+  private actionLogger: ActionLogger;
+  private interactionHandler: GridInteractionHandler;
   private cellNavigationHandler: CellNavigationHandler;
-  private autoScrollHandler: AutoScrollHandler;
-
-  // Shared state object passed to handlers that need it.
-  private dragState: DragState = {
-    isDraggingSelection: false,
-    isDraggingRowHeader: false,
-    isDraggingColHeader: false,
-    isResizing: false,
-  };
 
   /**
    * @constructor
@@ -55,54 +33,40 @@ class App {
     const cellWidth = 64;
     const cellHeight = 20;
 
-    this.grid = new Grid(
+    // 1. Create the core components
+    this.grid = new Grid(canvas, rows, cols, cellWidth, cellHeight);
+    this.inputHandler = new InputHandler(this.grid);
+    this.actionLogger = new ActionLogger();
+
+    // 2. Create all specific interaction handlers
+    const autoScrollHandler = new AutoScrollHandler(this.grid, canvas);
+    const handlers = {
+      range: new RangeSelectionHandler(this.grid),
+      row: new RowSelectionHandler(this.grid),
+      column: new ColumnSelectionHandler(this.grid),
+      rowResize: new RowResizeHandler(this.grid),
+      columnResize: new ColumnResizeHandler(this.grid),
+    };
+
+    // 3. Create the central interaction controller and pass it all its dependencies
+    this.interactionHandler = new GridInteractionHandler(
+      this.grid,
       canvas,
-      rows,
-      cols,
-      cellWidth,
-      cellHeight,
-      this.dragState
+      this.inputHandler,
+      this.actionLogger,
+      autoScrollHandler,
+      handlers
     );
 
-    // Initialize all feature handlers
-    this.inputHandler = new InputHandler(this.grid);
-    this.columnResizeHandler = new ColumnResizeHandler(
-      this.grid,
-      canvas,
-      this.dragState
-    );
-    this.rowResizeHandler = new RowResizeHandler(
-      this.grid,
-      canvas,
-      this.dragState
-    );
-    this.rowSelectionHandler = new RowSelectionHandler(
-      this.grid,
-      this.dragState
-    );
-    this.columnSelectionHandler = new ColumnSelectionHandler(
-      this.grid,
-      this.dragState
-    );
-    this.cellSelectionHandler = new CellSelectionHandler(
-      this.grid,
-      this.dragState
-    );
-    // --- MODIFIED --- Pass the dragState to the navigation handler
+    // 4. Create keyboard handler and pass it the central controller for state checking
     this.cellNavigationHandler = new CellNavigationHandler(
       this.grid,
       this.inputHandler,
-      this.dragState
+      this.interactionHandler
     );
-    this.rangeSelectionHandler = new RangeSelectionHandler(
-      this.grid,
-      this.dragState
-    );
-    this.autoScrollHandler = new AutoScrollHandler(
-      this.grid,
-      canvas,
-      this.dragState
-    );
+
+    // 5. Inject the interaction handler into components that need to know its state
+    this.grid.setInteractionHandler(this.interactionHandler);
 
     this.setupEventListeners();
     this.setupUI();
@@ -113,27 +77,21 @@ class App {
   /**
    * @private
    * @method setupEventListeners
-   * @description Sets up all the event listeners for user interactions like scrolling, mouse actions, and keyboard input.
+   * @description Sets up event listeners for non-mouse interactions like scrolling and keyboard.
    */
   private setupEventListeners(): void {
     const hScrollbar = document.querySelector(".scrollbar-h")!;
     const vScrollbar = document.querySelector(".scrollbar-v")!;
-    const canvas = this.grid.canvas;
-    // Listens for window resize events to adjust canvas size
+
+    // Start listening for mouse events via the central handler
+    this.interactionHandler.attachEventListeners();
+
     window.addEventListener("resize", () => this.grid.resizeCanvas());
-    // Listens for scroll events on horizontal and vertical scrollbars
     hScrollbar.addEventListener("scroll", this.handleScroll.bind(this));
     vScrollbar.addEventListener("scroll", this.handleScroll.bind(this));
-    // Listens for mouse wheel events for custom scrolling behavior
-    canvas.addEventListener("wheel", this.handleWheel.bind(this), {
+    this.grid.canvas.addEventListener("wheel", this.handleWheel.bind(this), {
       passive: false,
     });
-    // Listens for mouse down, double click, mouse move, and mouse up events on the canvas and document
-    canvas.addEventListener("mousedown", this.handleMouseDown.bind(this));
-    canvas.addEventListener("dblclick", this.handleCanvasDblClick.bind(this));
-    document.addEventListener("mousemove", this.handleMouseDrag.bind(this));
-    document.addEventListener("mouseup", this.handleMouseUp.bind(this));
-    // Listens for keyboard input and delegates to the navigation handler
     document.addEventListener("keydown", (e) =>
       this.cellNavigationHandler.handleKeyDown(e)
     );
@@ -227,81 +185,6 @@ class App {
       hScrollbar.scrollLeft += Math.sign(e.deltaY) * colscrollAmount;
     } else {
       vScrollbar.scrollTop += Math.sign(e.deltaY) * rowscrollAmount;
-    }
-  }
-
-  /**
-   * @private
-   * @method handleMouseDown
-   * @description Delegates mouse down events to the appropriate handlers.
-   * @param {MouseEvent} e - The mouse event object.
-   */
-  private handleMouseDown(e: MouseEvent): void {
-    // Commits and hides the input box if it's active
-    if (this.inputHandler.isActive()) {
-      this.inputHandler.commitAndHideInput();
-    }
-
-    // Delegate to handlers. Resize handlers go first to set the isResizing flag.
-    this.columnResizeHandler.handleMouseDown(e);
-    this.rowResizeHandler.handleMouseDown(e);
-
-    // Selection handlers will now check the isResizing flag and ignore clicks if needed.
-    this.rowSelectionHandler.handleMouseDown(e);
-    this.columnSelectionHandler.handleMouseDown(e);
-    this.cellSelectionHandler.handleMouseDown(e);
-  }
-
-  /**
-   * @private
-   * @method handleMouseDrag
-   * @description Delegates mouse drag events to the appropriate handlers.
-   * @param {MouseEvent} e - The mouse event object.
-   */
-  private handleMouseDrag(e: MouseEvent): void {
-    // Delegate to handlers.
-    this.columnResizeHandler.handleMouseDrag(e);
-    this.rowResizeHandler.handleMouseDrag(e);
-    this.rowSelectionHandler.handleMouseDrag(e);
-    this.columnSelectionHandler.handleMouseDrag(e);
-    this.rangeSelectionHandler.handleMouseDrag(e);
-    this.autoScrollHandler.handleMouseDrag(e);
-  }
-
-  /**
-   * @private
-   * @method handleMouseUp
-   * @description Delegates mouse up events, resetting all drag-related states.
-   * @param {MouseEvent} e - The mouse event object.
-   */
-  private handleMouseUp(e: MouseEvent): void {
-    // Let resize handlers finish first to reset the isResizing flag.
-    this.columnResizeHandler.handleMouseUp();
-    this.rowResizeHandler.handleMouseUp();
-
-    // Reset shared drag state for selections.
-    this.dragState.isDraggingSelection = false;
-    this.dragState.isDraggingRowHeader = false;
-    this.dragState.isDraggingColHeader = false;
-
-    // Stop auto-scrolling
-    this.autoScrollHandler.handleMouseUp();
-
-    this.grid.requestRedraw();
-  }
-
-  /**
-   * @private
-   * @method handleCanvasDblClick
-   * @description Handles double-click events on the canvas to show the input box for the selected cell.
-   * @param {MouseEvent} e - The mouse event object.
-   */
-  private handleCanvasDblClick(e: MouseEvent): void {
-    if (this.grid.selectedRow !== null && this.grid.selectedCol !== null) {
-      this.inputHandler.showInputBox(
-        this.grid.selectedRow,
-        this.grid.selectedCol
-      );
     }
   }
 }

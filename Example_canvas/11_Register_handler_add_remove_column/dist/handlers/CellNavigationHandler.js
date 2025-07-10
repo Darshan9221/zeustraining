@@ -3,10 +3,10 @@
  * @description Manages all keyboard-driven cell navigation and cell content manipulation.
  */
 export class CellNavigationHandler {
-    constructor(grid, inputHandler, dragState) {
+    constructor(grid, inputHandler, interactionHandler) {
         this.grid = grid;
         this.inputHandler = inputHandler;
-        this.dragState = dragState;
+        this.interactionHandler = interactionHandler;
     }
     /**
      * @public
@@ -16,10 +16,7 @@ export class CellNavigationHandler {
      */
     handleKeyDown(e) {
         // Prevent any keyboard actions while the user is dragging or resizing with the mouse.
-        if (this.dragState.isDraggingSelection ||
-            this.dragState.isDraggingRowHeader ||
-            this.dragState.isDraggingColHeader ||
-            this.dragState.isResizing) {
+        if (this.interactionHandler.isDragging()) {
             return;
         }
         if (this.inputHandler.isActive())

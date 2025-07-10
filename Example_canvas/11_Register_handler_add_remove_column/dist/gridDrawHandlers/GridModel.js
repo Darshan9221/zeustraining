@@ -1,4 +1,3 @@
-// src/GridModel.ts
 /**
  * Manages the core state of the spreadsheet grid.
  * This class is the single source of truth for grid data and state,

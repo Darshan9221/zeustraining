@@ -86,15 +86,23 @@ export class Grid {
     set selectionEndCol(value) {
         this.model.selectionEndCol = value;
     }
-    constructor(canvas, rows, cols, defaultCellWidth, defaultCellHeight, dragState) {
+    constructor(canvas, rows, cols, defaultCellWidth, defaultCellHeight) {
+        this.interactionHandler = null;
         this.needsRedraw = false;
         this.canvas = canvas;
         this.model = new GridModel(rows, cols, defaultCellWidth, defaultCellHeight);
         this.calculator = new GridCalculator(this.model, this.canvas);
-        this.renderer = new GridRenderer(this.model, this.calculator, this.canvas, dragState);
+        this.renderer = new GridRenderer(this.model, this.calculator, this, this.canvas);
         this.renderLoop();
     }
     // --- Public API ---
+    setInteractionHandler(handler) {
+        this.interactionHandler = handler;
+    }
+    isDragging() {
+        var _a;
+        return ((_a = this.interactionHandler) === null || _a === void 0 ? void 0 : _a.isDragging()) || false;
+    }
     setCellValue(row, col, value) {
         this.model.setCellValue(row, col, value);
     }
