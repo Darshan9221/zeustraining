@@ -40,6 +40,13 @@ export class CellNavigationHandler {
 
     switch (e.key) {
       case "Enter":
+        if (e.shiftKey) {
+          nextRow = Math.max(1, this.grid.selectedRow - 1);
+        } else {
+          nextRow = Math.min(this.grid.rows - 2, this.grid.selectedRow + 1);
+        }
+        shouldNavigate = true;
+        break;
       case "ArrowDown":
         nextRow = Math.min(this.grid.rows - 2, this.grid.selectedRow + 1);
         shouldNavigate = true;
@@ -120,14 +127,24 @@ export class CellNavigationHandler {
       e.preventDefault();
 
       if (e.shiftKey) {
-        // The selection "anchor" (the start) stays put.
-        // We just move the active cell and the end of the selection.
-        this.grid.selectedRow = nextRow;
-        this.grid.selectedCol = nextCol;
-        this.grid.selectionEndRow = nextRow;
-        this.grid.selectionEndCol = nextCol;
+        // Determine the next end position based on the current end of the selection, not the active cell
+        let currentEndRow = this.grid.selectionEndRow || this.grid.selectedRow;
+        let currentEndCol = this.grid.selectionEndCol || this.grid.selectedCol;
+
+        if (e.key === "ArrowRight") {
+          currentEndCol = Math.min(this.grid.cols - 1, currentEndCol + 1);
+        } else if (e.key === "ArrowLeft") {
+          currentEndCol = Math.max(1, currentEndCol - 1);
+        } else if (e.key === "ArrowDown") {
+          currentEndRow = Math.min(this.grid.rows - 1, currentEndRow + 1);
+        } else if (e.key === "ArrowUp") {
+          currentEndRow = Math.max(1, currentEndRow - 1);
+        }
+
+        this.grid.selectionEndRow = currentEndRow;
+        this.grid.selectionEndCol = currentEndCol;
       } else {
-        // --- If SHIFT is NOT pressed, we move the whole selection ---
+        // If SHIFT is NOT pressed, we are MOVING the selection.
         // The active cell, start, and end all move to the new spot.
         this.grid.selectedRow = nextRow;
         this.grid.selectedCol = nextCol;
@@ -136,12 +153,14 @@ export class CellNavigationHandler {
         this.grid.selectionEndRow = nextRow;
         this.grid.selectionEndCol = nextCol;
       }
-
       // Update UI and make sure the new cell is visible
-      document.getElementById(
-        "selectedInfo"
-      )!.textContent = `R${nextRow}, C${nextCol}`;
-      this.inputHandler.ensureCellVisible(nextRow, nextCol);
+      // document.getElementById(
+      //   "selectedInfo"
+      // )!.textContent = `R${nextRow}, C${nextCol}`;
+      this.inputHandler.ensureCellVisible(
+        this.grid.selectionEndRow!,
+        this.grid.selectionEndCol!
+      );
       this.grid.requestRedraw();
       return;
     }

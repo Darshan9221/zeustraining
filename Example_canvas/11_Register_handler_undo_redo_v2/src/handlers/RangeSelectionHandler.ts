@@ -35,9 +35,9 @@ export class RangeSelectionHandler implements IInteractionHandler {
     this.grid.selectionEndRow = row_idx;
     this.grid.selectionEndCol = col_idx;
 
-    document.getElementById(
-      "selectedInfo"
-    )!.textContent = `R${row_idx}, C${col_idx}`;
+    // document.getElementById(
+    //   "selectedInfo"
+    // )!.textContent = `R${row_idx}, C${col_idx}`;
     this.grid.requestRedraw();
   }
 

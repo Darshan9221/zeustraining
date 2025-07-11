@@ -27,9 +27,8 @@ export class GridCalculator {
         let accumulatedHeight = 0;
         this.model.viewportEndRow = this.model.viewportStartRow;
         for (let r = this.model.viewportStartRow; r < this.model.rows && r < this.model.rowHeights.length; r++) {
-            // Don't include rows that are only partially visible
-            // This makes sure the bottom border always shows up correctly.
-            if (accumulatedHeight + this.model.rowHeights[r] > visibleHeight) {
+            // Allow partial cells at the end of the viewport
+            if (accumulatedHeight > visibleHeight) {
                 break;
             }
             accumulatedHeight += this.model.rowHeights[r];
@@ -49,15 +48,17 @@ export class GridCalculator {
         let accumulatedWidth = 0;
         this.model.viewportEndCol = this.model.viewportStartCol;
         for (let c = this.model.viewportStartCol; c < this.model.cols && c < this.model.colWidths.length; c++) {
-            // Same as rows, only show columns that fit completely
-            if (accumulatedWidth + this.model.colWidths[c] > visibleWidth) {
+            // Allow partial cells at the end of the viewport
+            if (accumulatedWidth > visibleWidth) {
                 break;
             }
             accumulatedWidth += this.model.colWidths[c];
             this.model.viewportEndCol = c;
         }
-        // For debugging
-        document.getElementById("visibleInfo").textContent = `${this.model.viewportStartRow}-${this.model.viewportEndRow}, ${this.model.viewportStartCol}-${this.model.viewportEndCol}`;
+        // // For debugging
+        // document.getElementById(
+        //   "visibleInfo"
+        // )!.textContent = `Visible Rows: ${this.model.viewportStartRow}-${this.model.viewportEndRow}, Cols: ${this.model.viewportStartCol}-${this.model.viewportEndCol}`;
     }
     /**
      * Calculates the X-coordinate of the left edge of a given column.

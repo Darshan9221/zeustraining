@@ -127,9 +127,9 @@ export class InputHandler {
 
       this.ensureCellVisible(nextRow, nextCol);
       this.grid.requestRedraw();
-      document.getElementById(
-        "selectedInfo"
-      )!.textContent = `R${nextRow}, C${nextCol}`;
+      // document.getElementById(
+      //   "selectedInfo"
+      // )!.textContent = `R${nextRow}, C${nextCol}`;
       this.isNavigating = false;
     }
   }

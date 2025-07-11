@@ -26,7 +26,9 @@ export class RangeSelectionHandler {
         this.grid.selectionStartCol = col_idx;
         this.grid.selectionEndRow = row_idx;
         this.grid.selectionEndCol = col_idx;
-        document.getElementById("selectedInfo").textContent = `R${row_idx}, C${col_idx}`;
+        // document.getElementById(
+        //   "selectedInfo"
+        // )!.textContent = `R${row_idx}, C${col_idx}`;
         this.grid.requestRedraw();
     }
     handleMouseDrag(e) {

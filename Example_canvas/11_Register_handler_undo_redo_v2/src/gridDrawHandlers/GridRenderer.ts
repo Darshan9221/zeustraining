@@ -26,7 +26,7 @@ export class GridRenderer {
    * Converts a column index to its to excel style alphabets
    * @param {number} col - The zero-based column index.
    */
-  private colToExcelLabel(col: number): string {
+  private colNumAlphabets(col: number): string {
     // Found this online, seems to work
     let label = "";
     col++; // Adjust to 1-based index
@@ -200,7 +200,7 @@ export class GridRenderer {
     ctx.strokeStyle = "#ddd";
     for (
       let c = this.model.viewportStartCol;
-      c <= this.model.viewportEndCol;
+      c <= this.model.viewportEndCol + 1; // +1 to draw the line for the last (potentially partial) column
       c++
     ) {
       const x = this.calculator.getColX(c) - this.model.scrollX;
@@ -209,7 +209,7 @@ export class GridRenderer {
     }
     for (
       let r = this.model.viewportStartRow;
-      r <= this.model.viewportEndRow;
+      r <= this.model.viewportEndRow + 1; // +1 to draw the line for the last (potentially partial) row
       r++
     ) {
       const y = this.calculator.getRowY(r) - this.model.scrollY;
@@ -261,7 +261,7 @@ export class GridRenderer {
     // Row numbers
     for (
       let r = this.model.viewportStartRow;
-      r <= this.model.viewportEndRow;
+      r <= this.model.viewportEndRow + 1 && r < this.model.rows; // +1 to draw text for partial row
       r++
     ) {
       const screenY = this.calculator.getRowY(r) - this.model.scrollY;
@@ -281,7 +281,7 @@ export class GridRenderer {
     // Column letters
     for (
       let c = this.model.viewportStartCol;
-      c <= this.model.viewportEndCol;
+      c <= this.model.viewportEndCol + 1 && c < this.model.cols; // +1 to draw text for partial col
       c++
     ) {
       const screenX = this.calculator.getColX(c) - this.model.scrollX;
@@ -293,7 +293,7 @@ export class GridRenderer {
         ctx.fillStyle = "#666";
       }
       ctx.fillText(
-        this.colToExcelLabel(c - 1),
+        this.colNumAlphabets(c - 1),
         screenX + this.model.colWidths[c] / 2,
         this.model.headerHeight / 2
       );
@@ -336,37 +336,6 @@ export class GridRenderer {
         ctx.lineTo(x, y + h);
       }
       ctx.stroke();
-    }
-
-    // The little square fill handle on the active cell
-    const isSingleCellSelection =
-      this.model.selectionStartRow === this.model.selectionEndRow &&
-      this.model.selectionStartCol === this.model.selectionEndCol;
-    const isNotDragging = !this.grid.isDragging();
-
-    if (
-      this.model.selectedRow !== null &&
-      this.model.selectedCol !== null &&
-      isNotDragging &&
-      isSingleCellSelection
-    ) {
-      const activeCellX =
-        this.calculator.getColX(this.model.selectedCol) - this.model.scrollX;
-      const activeCellY =
-        this.calculator.getRowY(this.model.selectedRow) - this.model.scrollY;
-      const cellWidth = this.model.colWidths[this.model.selectedCol];
-      const cellHeight = this.model.rowHeights[this.model.selectedRow];
-
-      const handleSize = 6;
-      const handleX = activeCellX + cellWidth - handleSize / 2 - 1;
-      const handleY = activeCellY + cellHeight - handleSize / 2 - 1;
-
-      // draw a white box behind the handle to make it pop
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(handleX - 1, handleY - 1, handleSize + 2, handleSize + 2);
-      // now draw the green handle on top
-      ctx.fillStyle = "#107c41";
-      ctx.fillRect(handleX, handleY, handleSize, handleSize);
     }
   }
 }

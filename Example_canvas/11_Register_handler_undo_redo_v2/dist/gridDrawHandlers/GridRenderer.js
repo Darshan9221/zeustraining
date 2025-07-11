@@ -10,7 +10,7 @@ export class GridRenderer {
      * Converts a column index to its to excel style alphabets
      * @param {number} col - The zero-based column index.
      */
-    colToExcelLabel(col) {
+    colNumAlphabets(col) {
         // Found this online, seems to work
         let label = "";
         col++; // Adjust to 1-based index
@@ -113,12 +113,14 @@ export class GridRenderer {
         // Header grid lines
         ctx.beginPath();
         ctx.strokeStyle = "#ddd";
-        for (let c = this.model.viewportStartCol; c <= this.model.viewportEndCol; c++) {
+        for (let c = this.model.viewportStartCol; c <= this.model.viewportEndCol + 1; // +1 to draw the line for the last (potentially partial) column
+         c++) {
             const x = this.calculator.getColX(c) - this.model.scrollX;
             ctx.moveTo(x + 0.5, 0);
             ctx.lineTo(x + 0.5, this.model.headerHeight);
         }
-        for (let r = this.model.viewportStartRow; r <= this.model.viewportEndRow; r++) {
+        for (let r = this.model.viewportStartRow; r <= this.model.viewportEndRow + 1; // +1 to draw the line for the last (potentially partial) row
+         r++) {
             const y = this.calculator.getRowY(r) - this.model.scrollY;
             ctx.moveTo(0, y + 0.5);
             ctx.lineTo(this.model.headerWidth, y + 0.5);
@@ -145,7 +147,8 @@ export class GridRenderer {
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         // Row numbers
-        for (let r = this.model.viewportStartRow; r <= this.model.viewportEndRow; r++) {
+        for (let r = this.model.viewportStartRow; r <= this.model.viewportEndRow + 1 && r < this.model.rows; // +1 to draw text for partial row
+         r++) {
             const screenY = this.calculator.getRowY(r) - this.model.scrollY;
             const isRowInRange = hasSelection && r >= minRow && r <= maxRow;
             if (isRowInRange) {
@@ -158,7 +161,8 @@ export class GridRenderer {
             ctx.fillText(r.toString(), this.model.headerWidth / 2, screenY + this.model.rowHeights[r] / 2);
         }
         // Column letters
-        for (let c = this.model.viewportStartCol; c <= this.model.viewportEndCol; c++) {
+        for (let c = this.model.viewportStartCol; c <= this.model.viewportEndCol + 1 && c < this.model.cols; // +1 to draw text for partial col
+         c++) {
             const screenX = this.calculator.getColX(c) - this.model.scrollX;
             const isColInRange = hasSelection && c >= minCol && c <= maxCol;
             if (isColInRange) {
@@ -168,7 +172,7 @@ export class GridRenderer {
             else {
                 ctx.fillStyle = "#666";
             }
-            ctx.fillText(this.colToExcelLabel(c - 1), screenX + this.model.colWidths[c] / 2, this.model.headerHeight / 2);
+            ctx.fillText(this.colNumAlphabets(c - 1), screenX + this.model.colWidths[c] / 2, this.model.headerHeight / 2);
         }
         // Draw the main borders between headers and the grid
         ctx.beginPath();
@@ -198,28 +202,6 @@ export class GridRenderer {
                 ctx.lineTo(x, y + h);
             }
             ctx.stroke();
-        }
-        // The little square fill handle on the active cell
-        const isSingleCellSelection = this.model.selectionStartRow === this.model.selectionEndRow &&
-            this.model.selectionStartCol === this.model.selectionEndCol;
-        const isNotDragging = !this.grid.isDragging();
-        if (this.model.selectedRow !== null &&
-            this.model.selectedCol !== null &&
-            isNotDragging &&
-            isSingleCellSelection) {
-            const activeCellX = this.calculator.getColX(this.model.selectedCol) - this.model.scrollX;
-            const activeCellY = this.calculator.getRowY(this.model.selectedRow) - this.model.scrollY;
-            const cellWidth = this.model.colWidths[this.model.selectedCol];
-            const cellHeight = this.model.rowHeights[this.model.selectedRow];
-            const handleSize = 6;
-            const handleX = activeCellX + cellWidth - handleSize / 2 - 1;
-            const handleY = activeCellY + cellHeight - handleSize / 2 - 1;
-            // draw a white box behind the handle to make it pop
-            ctx.fillStyle = "#ffffff";
-            ctx.fillRect(handleX - 1, handleY - 1, handleSize + 2, handleSize + 2);
-            // now draw the green handle on top
-            ctx.fillStyle = "#107c41";
-            ctx.fillRect(handleX, handleY, handleSize, handleSize);
         }
     }
 }
