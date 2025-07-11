@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>11_files_seperation</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        overflow: hidden;
+      }
+
+      .grid-container {
+        position: relative;
+        width: 100vw;
+        height: 93vh;
+        overflow: hidden;
+      }
+
+      #gridCanvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        border: 1px solid #ccc;
+      }
+
+      .scrollbar-container {
+        position: absolute;
+      }
+
+      .scrollbar-h {
+        bottom: 0;
+        left: 0;
+        right: 20px;
+        height: 20px;
+        overflow-x: auto;
+        overflow-y: hidden;
+      }
+
+      .scrollbar-v {
+        top: 0;
+        right: 0;
+        bottom: 20px;
+        width: 20px;
+        overflow-x: hidden;
+        overflow-y: auto;
+      }
+
+      .scrollbar-content-h {
+        height: 1px;
+      }
+
+      .scrollbar-content-v {
+        width: 1px;
+      }
+
+      .info-panel {
+        position: absolute;
+        top: 10px;
+        right: 30px;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 10px;
+        border-radius: 5px;
+        font-size: 12px;
+        z-index: 100;
+      }
+    </style>
+    <!-- Note: faker.js is now imported via npm and ESM in index.js. Use a bundler (like Vite or Webpack) to build for the browser. -->
+    <script type="module" src="./dist/main.js"></script>
+  </head>
+  <body>
+    <div class="grid-container">
+      <canvas id="gridCanvas"></canvas>
+
+      <div class="scrollbar-container scrollbar-h">
+        <div class="scrollbar-content-h" id="hScrollContent"></div>
+      </div>
+
+      <div class="scrollbar-container scrollbar-v">
+        <div class="scrollbar-content-v" id="vScrollContent"></div>
+      </div>
+
+      <div class="info-panel" style="z-index: 10000">
+        <div>Grid: 100000 × 500 cells</div>
+        <div>Visible: <span id="visibleInfo">0-0, 0-0</span></div>
+        <div>Selected: <span id="selectedInfo">None</span></div>
+      </div>
+    </div>
+  </body>
+</html>
