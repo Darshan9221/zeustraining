@@ -1,24 +1,21 @@
-import { RangeSelectionHandler } from "./handlers/RangeSelectionHandler";
-import { RowSelectionHandler } from "./handlers/RowSelectionHandler";
-import { ColumnSelectionHandler } from "./handlers/ColumnSelectionHandler";
-export class GridInteractionHandler {
-    constructor(grid, canvas, inputHandler, actionLogger, autoScrollHandler, handlers) {
-        // This will hold the handler that's currently being used (e.g., during a mouse drag)
+import { RangeSelection } from "./handlers/rangeSelection";
+import { RowSelection } from "./handlers/rowSelection";
+import { ColSelection } from "./handlers/colSelection";
+export class TouchHandler {
+    constructor(grid, canvas, inputHandler, registerHandler, autoScroll, handlers) {
         this.activeHandler = null;
         this.grid = grid;
         this.canvas = canvas;
         this.inputHandler = inputHandler;
-        this.actionLogger = actionLogger;
-        this.autoScrollHandler = autoScrollHandler;
+        this.registerHandler = registerHandler;
+        this.autoScroll = autoScroll;
         this.handlers = handlers;
-        // The order is critical! More specific interactions must come before general ones.
-        // e.g., A resize handle is on a header, so we must check for resize first.
         this.handlerPriority = [
             handlers.columnResize,
             handlers.rowResize,
             handlers.column,
             handlers.row,
-            handlers.range, // this one is last because it's the "default"
+            handlers.range,
         ];
     }
     attachEventListeners() {
@@ -30,6 +27,10 @@ export class GridInteractionHandler {
     isDragging() {
         return this.activeHandler !== null;
     }
+    /**
+     * Behaviour of cell on mouse click
+     * @param {MouseEvent} e
+     */
     handleMouseDown(e) {
         if (this.inputHandler.isActive()) {
             this.inputHandler.commitAndHideInput();
@@ -48,11 +49,11 @@ export class GridInteractionHandler {
         if (this.activeHandler) {
             // If we're dragging, let the active handler deal with it
             this.activeHandler.handleMouseDrag(e);
-            const isSelectionHandler = this.activeHandler instanceof RangeSelectionHandler ||
-                this.activeHandler instanceof RowSelectionHandler ||
-                this.activeHandler instanceof ColumnSelectionHandler;
+            const isSelectionHandler = this.activeHandler instanceof RangeSelection ||
+                this.activeHandler instanceof RowSelection ||
+                this.activeHandler instanceof ColSelection;
             if (isSelectionHandler) {
-                this.autoScrollHandler.handleMouseDrag(e, this.activeHandler);
+                this.autoScroll.handleMouseDrag(e, this.activeHandler);
             }
         }
         else {
@@ -71,23 +72,30 @@ export class GridInteractionHandler {
             }
         }
     }
+    /**
+     * Behaviour on leaving mouse click
+     * @param {MouseEvent} e
+     */
     handleMouseUp(e) {
         if (this.activeHandler) {
             const action = this.activeHandler.handleMouseUp(e);
             if (action) {
-                this.actionLogger.logAction({
+                this.registerHandler.logAction({
                     type: this.activeHandler.constructor.name,
                     details: action,
                 });
             }
             // a drag is finished, so reset everything
             this.activeHandler = null;
-            this.autoScrollHandler.handleMouseUp();
+            this.autoScroll.handleMouseUp();
             this.grid.requestRedraw();
         }
     }
+    /**
+     * Cell behaviour on double click
+     * @param {MouseEvent} e
+     */
     handleDblClick(e) {
-        // A double click should start editing the cell
         if (this.handlers.range.hitTest(e)) {
             if (this.grid.selectedRow !== null && this.grid.selectedCol !== null) {
                 this.inputHandler.showInputBox(this.grid.selectedRow, this.grid.selectedCol);

@@ -4,19 +4,23 @@ export class InputHandler {
         this.isNavigating = false;
         this.grid = grid;
     }
+    /**
+     * show input box on the canvas
+     * @param {number} row - row of  input cell
+     * @param {number} col -col of input cell
+     * @param {string} startingChar - initial characters clicked or not
+     */
     showInputBox(row, col, startingChar) {
-        // get rid of any old input box first
         if (this.currentInput) {
             this.commitAndHideInput();
         }
-        // can't edit headers
         if (row === 0 || col === 0)
             return;
-        // find where the cell is on the screen
+        // find  the cell on the screen
         const screenX = this.grid.getColX(col) - this.grid.scrollX;
         const screenY = this.grid.getRowY(row) - this.grid.scrollY;
         const canvasRect = this.grid.canvas.getBoundingClientRect();
-        // don't show the input if the cell is off-screen
+        //Off screen cell
         if (screenX < this.grid.headerWidth ||
             screenY < this.grid.headerHeight ||
             screenX > canvasRect.width ||
@@ -28,7 +32,6 @@ export class InputHandler {
         this.currentInput = input;
         input.type = "text";
         input.value = value;
-        // Style the input box to look right
         input.style.position = "absolute";
         input.style.left = `${canvasRect.left + window.scrollX + 0.5 + screenX}px`;
         input.style.top = `${canvasRect.top + window.scrollY + 0.5 + screenY}px`;
@@ -44,21 +47,24 @@ export class InputHandler {
         document.body.appendChild(input);
         input.focus();
         if (startingChar) {
-            // if we started by typing, put cursor at the end
             input.setSelectionRange(input.value.length, input.value.length);
         }
         else {
-            // if we started with F2 or double-click, select all text
             input.select();
         }
         input.addEventListener("blur", () => {
             if (this.isNavigating)
-                return; // don't commit if we're just tabbing away
+                return;
             this.commitAndHideInput();
             this.grid.requestRedraw();
         });
         input.addEventListener("keydown", (e) => this.handleInputKeyDown(e));
     }
+    /**
+     *
+     * @param {KeyboardEvent} e - input on key events
+     * @returns
+     */
     handleInputKeyDown(e) {
         const row = this.grid.selectedRow;
         const col = this.grid.selectedCol;
@@ -88,7 +94,7 @@ export class InputHandler {
                 doNavigate = true;
                 break;
             case "Escape":
-                this.hideInput(false); // hide without saving
+                this.hideInput(false);
                 this.grid.requestRedraw();
                 return;
         }
@@ -96,7 +102,7 @@ export class InputHandler {
             e.preventDefault();
             e.stopPropagation();
             this.isNavigating = true;
-            this.commitAndHideInput(); // save changes
+            this.commitAndHideInput();
             // move selection
             this.grid.selectedRow = nextRow;
             this.grid.selectedCol = nextCol;
@@ -133,6 +139,9 @@ export class InputHandler {
         }
         this.hideInput(true);
     }
+    /**
+     * @param {boolean} wasCommitted - remove input box while selection
+     */
     hideInput(wasCommitted) {
         if (this.currentInput && this.currentInput.parentNode) {
             this.currentInput.parentNode.removeChild(this.currentInput);
@@ -142,6 +151,11 @@ export class InputHandler {
     isActive() {
         return this.currentInput !== null;
     }
+    /**
+     * Ensure cell is visible on scroll
+     * @param {number} row - row of selected cell
+     * @param {number} col - column of selected cell
+     */
     ensureCellVisible(row, col) {
         const hScrollbar = document.querySelector(".scrollbar-h");
         const vScrollbar = document.querySelector(".scrollbar-v");

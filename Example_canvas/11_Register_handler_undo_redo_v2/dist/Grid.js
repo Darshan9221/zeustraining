@@ -1,9 +1,7 @@
-import { GridModel } from "./gridDrawHandlers/GridModel";
-import { GridCalculator } from "./gridDrawHandlers/GridCalculator";
-import { GridRenderer } from "./gridDrawHandlers/GridRenderer";
+import { Model } from "./grid/model";
+import { Calculator } from "./grid/calculation";
+import { Renderer } from "./grid/renderer";
 export class Grid {
-    // These getters are just to make it easier to access model properties from other classes
-    // without having to pass the model around everywhere.
     get rows() {
         return this.model.rows;
     }
@@ -83,21 +81,21 @@ export class Grid {
         this.model.selectionEndCol = value;
     }
     constructor(canvas, rows, cols, defaultCellW, defaultCellH) {
-        this.interactionHandler = null;
+        this.touchHandler = null;
         this.needsRedraw = false;
         this.canvas = canvas;
         // Create the main parts of the grid system
-        this.model = new GridModel(rows, cols, defaultCellW, defaultCellH);
-        this.calculator = new GridCalculator(this.model, this.canvas);
-        this.renderer = new GridRenderer(this.model, this.calculator, this, this.canvas);
+        this.model = new Model(rows, cols, defaultCellW, defaultCellH);
+        this.calculator = new Calculator(this.model, this.canvas);
+        this.renderer = new Renderer(this.model, this.calculator, this, this.canvas);
         this.renderLoop();
     }
-    setInteractionHandler(handler) {
-        this.interactionHandler = handler;
+    setTouchHandler(handler) {
+        this.touchHandler = handler;
     }
     isDragging() {
         var _a;
-        return ((_a = this.interactionHandler) === null || _a === void 0 ? void 0 : _a.isDragging()) || false;
+        return ((_a = this.touchHandler) === null || _a === void 0 ? void 0 : _a.isDragging()) || false;
     }
     setCellValue(row, col, value) {
         this.model.setCellValue(row, col, value);
@@ -134,12 +132,15 @@ export class Grid {
         }
         document.getElementById("vScrollContent").style.height = totalH + "px";
     }
+    /**
+     * Grid behaviour on resizing the canvas
+     * @returns {void} nothing
+     */
     resizeCanvas() {
         const container = this.canvas.parentElement;
         const dpr = this.calculator.getDPR();
         this.canvas.width = (container.clientWidth - 20) * dpr;
         this.canvas.height = (container.clientHeight - 20) * dpr;
-        // Need to set style width/height too for the browser
         this.canvas.style.width = container.clientWidth - 20 + "px";
         this.canvas.style.height = container.clientHeight - 20 + "px";
         // Reset the transform and scale for the new DPR

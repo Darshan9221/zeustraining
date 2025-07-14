@@ -1,4 +1,4 @@
-export class RowSelectionHandler {
+export class RowSelection {
     constructor(grid) {
         this.startRow = null;
         this.grid = grid;
@@ -7,7 +7,6 @@ export class RowSelectionHandler {
         const rect = this.grid.canvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
-        // check if click is in the row header area (left bar)
         return x < this.grid.headerWidth && y >= this.grid.headerHeight;
     }
     handleMouseDown(e) {
@@ -19,11 +18,11 @@ export class RowSelectionHandler {
             return;
         this.startRow = row_index;
         this.grid.selectedRow = row_index;
-        this.grid.selectedCol = 1; // active cell is first in the row
+        this.grid.selectedCol = 1;
         this.grid.selectionStartRow = this.startRow;
         this.grid.selectionEndRow = row_index;
-        this.grid.selectionStartCol = 1; // from the very first column
-        this.grid.selectionEndCol = this.grid.cols - 1; // to the very last
+        this.grid.selectionStartCol = 1;
+        this.grid.selectionEndCol = this.grid.cols - 1;
         this.grid.requestRedraw();
     }
     handleMouseDrag(e) {

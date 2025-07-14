@@ -1,8 +1,5 @@
-export class GridModel {
-    constructor(rows, cols, cellW, // Changed from defaultCellWidth
-    cellH // Changed from defaultCellHeight
-    ) {
-        // Using a Map is good for sparse data
+export class Model {
+    constructor(rows, cols, cellW, cellH) {
         this.cellData = new Map();
         this.scrollX = 0;
         this.scrollY = 0;
@@ -47,9 +44,7 @@ export class GridModel {
     getCellValue(row, col) {
         return this.cellData.get(`${row},${col}`) || "";
     }
-    /**
-     * Clears all data from the grid cells.
-     */
+    // Clears all data from the grid cells.
     clearAllCells() {
         this.cellData.clear();
     }

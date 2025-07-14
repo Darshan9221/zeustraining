@@ -1,22 +1,22 @@
 import { Grid } from "./Grid";
 import { InputHandler } from "./InputHandler";
 import { DataManager } from "./DataManager";
-import { ColumnResizeHandler } from "./handlers/ColumnResizeHandler";
-import { RowResizeHandler } from "./handlers/RowResizeHandler";
-import { RowSelectionHandler } from "./handlers/RowSelectionHandler";
-import { ColumnSelectionHandler } from "./handlers/ColumnSelectionHandler";
-import { RangeSelectionHandler } from "./handlers/RangeSelectionHandler";
-import { AutoScrollHandler } from "./handlers/AutoScrollHandler";
-import { CellNavigationHandler } from "./handlers/CellNavigationHandler";
-import { ActionLogger } from "./ActionLogger";
-import { GridInteractionHandler } from "./GridInteractionHandler";
+import { ColResize } from "./handlers/colResize";
+import { RowResize } from "./handlers/rowResize";
+import { RowSelection } from "./handlers/rowSelection";
+import { ColSelection } from "./handlers/colSelection";
+import { RangeSelection } from "./handlers/rangeSelection";
+import { AutoScroll } from "./handlers/autoScroll";
+import { CellNavigation } from "./handlers/cellNavigation";
+import { RegisterHandler } from "./registerHandler";
+import { TouchHandler } from "./touchHandler";
 
 class App {
   private grid: Grid;
   private inputHandler: InputHandler;
-  private actionLogger: ActionLogger;
-  private interactionHandler: GridInteractionHandler;
-  private cellNavigationHandler: CellNavigationHandler;
+  private registerHandler: RegisterHandler;
+  private touchHandler: TouchHandler;
+  private cellNavigation: CellNavigation;
 
   constructor() {
     const canvas = document.getElementById("gridCanvas") as HTMLCanvasElement;
@@ -25,45 +25,42 @@ class App {
     const defaultCellW = 64;
     const defaultCellH = 20;
 
-    // Create the core grid components
+    // Core grid components
     this.grid = new Grid(canvas, rows, cols, defaultCellW, defaultCellH);
     this.inputHandler = new InputHandler(this.grid);
-    this.actionLogger = new ActionLogger();
+    this.registerHandler = new RegisterHandler();
 
-    // Create all helper classes for mouse interactions
-    const autoScrollHandler = new AutoScrollHandler(this.grid, canvas);
+    // Helper classes for mouse interactions
+    const autoScrollHandler = new AutoScroll(this.grid, canvas);
     const handlers = {
-      range: new RangeSelectionHandler(this.grid),
-      row: new RowSelectionHandler(this.grid),
-      column: new ColumnSelectionHandler(this.grid),
-      rowResize: new RowResizeHandler(this.grid),
-      columnResize: new ColumnResizeHandler(this.grid),
+      range: new RangeSelection(this.grid),
+      row: new RowSelection(this.grid),
+      column: new ColSelection(this.grid),
+      rowResize: new RowResize(this.grid),
+      columnResize: new ColResize(this.grid),
     };
 
-    // Create the main interaction controller that manages all handlers
-    this.interactionHandler = new GridInteractionHandler(
+    this.touchHandler = new TouchHandler(
       this.grid,
       canvas,
       this.inputHandler,
-      this.actionLogger,
+      this.registerHandler,
       autoScrollHandler,
       handlers
     );
 
-    // Create the keyboard handler
-    this.cellNavigationHandler = new CellNavigationHandler(
+    // Keyboard handler
+    this.cellNavigation = new CellNavigation(
       this.grid,
       this.inputHandler,
-      this.interactionHandler
+      this.touchHandler
     );
 
-    // Let the grid know about the interaction handler so it can check if we're dragging
-    this.grid.setInteractionHandler(this.interactionHandler);
+    this.grid.setTouchHandler(this.touchHandler);
 
     this.setupEventListeners();
     this.setupUI();
 
-    // Do an initial resize and draw
     this.grid.resizeCanvas();
   }
 
@@ -71,10 +68,8 @@ class App {
     const hScrollbar = document.querySelector(".scrollbar-h")!;
     const vScrollbar = document.querySelector(".scrollbar-v")!;
 
-    // Tell the interaction handler to start listening for mouse events
-    this.interactionHandler.attachEventListeners();
+    this.touchHandler.attachEventListeners();
 
-    // Other listeners
     window.addEventListener("resize", () => this.grid.resizeCanvas());
     hScrollbar.addEventListener("scroll", this.handleScroll.bind(this));
     vScrollbar.addEventListener("scroll", this.handleScroll.bind(this));
@@ -82,12 +77,11 @@ class App {
       passive: false,
     });
     document.addEventListener("keydown", (e) =>
-      this.cellNavigationHandler.handleKeyDown(e)
+      this.cellNavigation.handleKeyDown(e)
     );
   }
 
   private setupUI(): void {
-    // Create some buttons and inputs for loading data
     const controlsDiv = document.createElement("div");
     controlsDiv.style.display = "flex";
     controlsDiv.style.alignItems = "center";
@@ -137,17 +131,19 @@ class App {
   }
 
   private handleScroll(): void {
-    // When the scrollbars move, update the grid's internal scroll position
     this.grid.scrollX = document.querySelector(".scrollbar-h")!.scrollLeft;
     this.grid.scrollY = document.querySelector(".scrollbar-v")!.scrollTop;
     this.grid.requestRedraw();
 
-    // if we're editing a cell, make sure the input box moves with the scroll
     if (this.inputHandler.isActive()) {
       this.inputHandler.updateInputPosition();
     }
   }
 
+  /**
+   * Checks if a mouse click or move happened.
+   * @param {MouseEvent} e - The mouse event to test.
+   */
   private handleWheel(e: WheelEvent): void {
     e.preventDefault();
     const hScrollbar = document.querySelector(".scrollbar-h")!;
@@ -155,7 +151,6 @@ class App {
     const rowScrollAmount = 20;
     const colScrollAmount = 100;
 
-    // if shift is held, scroll horizontally. Otherwise, vertically.
     if (e.shiftKey) {
       hScrollbar.scrollLeft += Math.sign(e.deltaY) * colScrollAmount;
     } else {

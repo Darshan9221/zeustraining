@@ -1,4 +1,4 @@
-export class ActionLogger {
+export class RegisterHandler {
     logAction(action) {
         if (!action)
             return;
