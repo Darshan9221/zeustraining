@@ -75,11 +75,11 @@ export class InputHandler {
             case "Enter":
                 nextRow = e.shiftKey
                     ? Math.max(1, row - 1)
-                    : Math.min(this.grid.rows - 2, row + 1);
+                    : Math.min(this.grid.rows - 1, row + 1);
                 doNavigate = true;
                 break;
             case "ArrowDown":
-                nextRow = Math.min(this.grid.rows - 2, row + 1);
+                nextRow = Math.min(this.grid.rows - 1, row + 1);
                 doNavigate = true;
                 break;
             case "ArrowUp":
@@ -90,7 +90,7 @@ export class InputHandler {
                 e.preventDefault();
                 nextCol = e.shiftKey
                     ? Math.max(1, col - 1)
-                    : Math.min(this.grid.cols - 2, col + 1);
+                    : Math.min(this.grid.cols - 1, col + 1);
                 doNavigate = true;
                 break;
             case "Escape":

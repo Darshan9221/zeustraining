@@ -26,12 +26,12 @@ export class CellNavigation {
                     nextRow = Math.max(1, this.grid.selectedRow - 1);
                 }
                 else {
-                    nextRow = Math.min(this.grid.rows - 2, this.grid.selectedRow + 1);
+                    nextRow = Math.min(this.grid.rows - 1, this.grid.selectedRow + 1);
                 }
                 shouldNavigate = true;
                 break;
             case "ArrowDown":
-                nextRow = Math.min(this.grid.rows - 2, this.grid.selectedRow + 1);
+                nextRow = Math.min(this.grid.rows - 1, this.grid.selectedRow + 1);
                 shouldNavigate = true;
                 break;
             case "ArrowUp":
@@ -43,7 +43,7 @@ export class CellNavigation {
                 shouldNavigate = true;
                 break;
             case "ArrowRight":
-                nextCol = Math.min(this.grid.cols - 2, this.grid.selectedCol + 1);
+                nextCol = Math.min(this.grid.cols - 1, this.grid.selectedCol + 1);
                 shouldNavigate = true;
                 break;
             case "Tab":
