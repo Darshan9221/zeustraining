@@ -165,13 +165,9 @@ class App {
     }
   }
 
-  /**
-   * Updates the statistics display for selected cells containing numeric values
-   */
   public updateStatistics(): void {
-    // Delegate to the grid's calculator which has access to the model
     if (this.grid) {
-      this.grid.requestRedraw(); // This will trigger updateSelectionStats in the calculator
+      this.grid.requestRedraw();
     }
   }
 }

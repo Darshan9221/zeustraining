@@ -123,13 +123,9 @@ class App {
             vScrollbar.scrollTop += Math.sign(e.deltaY) * rowScrollAmount;
         }
     }
-    /**
-     * Updates the statistics display for selected cells containing numeric values
-     */
     updateStatistics() {
-        // Delegate to the grid's calculator which has access to the model
         if (this.grid) {
-            this.grid.requestRedraw(); // This will trigger updateSelectionStats in the calculator
+            this.grid.requestRedraw();
         }
     }
 }

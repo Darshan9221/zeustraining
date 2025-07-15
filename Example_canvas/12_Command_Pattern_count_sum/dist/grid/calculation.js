@@ -1,5 +1,6 @@
 export class Calculator {
     constructor(model, canvas) {
+        this.updateStatsTimeoutId = null;
         this.model = model;
         this.canvas = canvas;
     }
@@ -106,22 +107,26 @@ export class Calculator {
         }
         return null;
     }
-    /**
-     * Updates the statistics display for selected cells containing numeric values
-     */
-    updateSelectionStats() {
-        // Get the current selection bounds
+    updateStats() {
+        if (this.updateStatsTimeoutId !== null) {
+            clearTimeout(this.updateStatsTimeoutId);
+        }
+        this.updateStatsTimeoutId = window.setTimeout(() => {
+            this.performStatsUpdate();
+            this.updateStatsTimeoutId = null;
+        }, 150);
+    }
+    performStatsUpdate() {
         const startRow = this.model.selectionStartRow;
         const endRow = this.model.selectionEndRow;
         const startCol = this.model.selectionStartCol;
         const endCol = this.model.selectionEndCol;
-        // Reset statistics
-        let count = 0;
+        let totalCnt = 0;
+        let cnt = 0;
         let sum = 0;
         let min = Number.POSITIVE_INFINITY;
         let max = Number.NEGATIVE_INFINITY;
-        let hasNumbers = false;
-        // If there's a selection, calculate statistics
+        let hasNums = false;
         if (startRow !== null &&
             endRow !== null &&
             startCol !== null &&
@@ -130,70 +135,56 @@ export class Calculator {
             const maxRow = Math.max(startRow, endRow);
             const minCol = Math.min(startCol, endCol);
             const maxCol = Math.max(startCol, endCol);
-            // Iterate through all cells in the selection
             for (let row = minRow; row <= maxRow; row++) {
                 for (let col = minCol; col <= maxCol; col++) {
-                    const cellValue = this.model.getCellValue(row, col);
-                    // Check if the cell value is a number
-                    if (cellValue !== "" &&
-                        cellValue !== null &&
-                        cellValue !== undefined) {
-                        const numValue = parseFloat(cellValue);
-                        count++;
-                        if (!isNaN(numValue)) {
+                    const val = this.model.getCellValue(row, col);
+                    if (val !== "" && val !== null && val !== undefined) {
+                        totalCnt++;
+                        // Check if the cell value is a pure number (not mixed with text)
+                        const numValue = parseFloat(val);
+                        const isValidNumber = !isNaN(numValue) &&
+                            isFinite(numValue) &&
+                            String(numValue) === String(val).trim();
+                        if (isValidNumber) {
+                            cnt++;
                             sum += numValue;
                             min = Math.min(min, numValue);
                             max = Math.max(max, numValue);
-                            hasNumbers = true;
+                            hasNums = true;
                         }
                     }
                 }
             }
         }
-        // Update the statistics display
-        const countElement = document.getElementById("statCount");
-        const sumElement = document.getElementById("statSum");
-        const averageElement = document.getElementById("statAverage");
-        const minElement = document.getElementById("statMin");
-        const maxElement = document.getElementById("statMax");
-        if (hasNumbers && count > 0) {
-            const average = sum / count;
-            if (countElement)
-                countElement.textContent = count.toString();
-            if (sumElement)
-                sumElement.textContent = this.formatNumber(sum);
-            if (averageElement)
-                averageElement.textContent = this.formatNumber(average);
-            if (minElement)
-                minElement.textContent = this.formatNumber(min);
-            if (maxElement)
-                maxElement.textContent = this.formatNumber(max);
+        const cnt1 = document.getElementById("statCount");
+        const sum1 = document.getElementById("statSum");
+        const avg1 = document.getElementById("statAverage");
+        const min1 = document.getElementById("statMin");
+        const max1 = document.getElementById("statMax");
+        if (hasNums && cnt > 0) {
+            const avg = sum / cnt;
+            if (cnt1)
+                cnt1.textContent = totalCnt.toString();
+            if (sum1)
+                sum1.textContent = sum.toString();
+            if (avg1)
+                avg1.textContent = avg.toString();
+            if (min1)
+                min1.textContent = min.toString();
+            if (max1)
+                max1.textContent = max.toString();
         }
         else {
-            // No numeric values in selection
-            if (countElement)
-                countElement.textContent = "0";
-            if (sumElement)
-                sumElement.textContent = "0";
-            if (averageElement)
-                averageElement.textContent = "0";
-            if (minElement)
-                minElement.textContent = "0";
-            if (maxElement)
-                maxElement.textContent = "0";
+            if (cnt1)
+                cnt1.textContent = totalCnt.toString();
+            if (sum1)
+                sum1.textContent = "0";
+            if (avg1)
+                avg1.textContent = "0";
+            if (min1)
+                min1.textContent = "0";
+            if (max1)
+                max1.textContent = "0";
         }
-    }
-    /**
-     * Formats a number for display in statistics
-     * @param {number} num - The number to format
-     * @returns {string} Formatted number string
-     */
-    formatNumber(num) {
-        // Handle very large or very small numbers
-        if (Math.abs(num) >= 1000000 || (Math.abs(num) < 0.001 && num !== 0)) {
-            return num.toExponential(2);
-        }
-        // Round to 2 decimal places for display
-        return Math.round(num * 100) / 100 + "";
     }
 }

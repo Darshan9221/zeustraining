@@ -137,6 +137,23 @@ export class Renderer {
                 const screenX = this.calculator.getColX(c) - this.model.scrollX;
                 ctx.fillRect(screenX, 0, this.model.colWidths[c], this.model.headerHeight);
             }
+            // Redraw grid lines on top of highlighted headers
+            ctx.beginPath();
+            ctx.strokeStyle = "#ddd";
+            ctx.lineWidth = 1;
+            // Vertical lines for highlighted column headers
+            for (let c = Math.max(minCol, this.model.viewportStartCol); c <= Math.min(maxCol + 1, this.model.viewportEndCol + 1); c++) {
+                const x = this.calculator.getColX(c) - this.model.scrollX;
+                ctx.moveTo(x + 0.5, 0);
+                ctx.lineTo(x + 0.5, this.model.headerHeight);
+            }
+            // Horizontal lines for highlighted row headers
+            for (let r = Math.max(minRow, this.model.viewportStartRow); r <= Math.min(maxRow + 1, this.model.viewportEndRow + 1); r++) {
+                const y = this.calculator.getRowY(r) - this.model.scrollY;
+                ctx.moveTo(0, y + 0.5);
+                ctx.lineTo(this.model.headerWidth, y + 0.5);
+            }
+            ctx.stroke();
         }
         // Draw header text (row numbers and column letters)
         ctx.font = "12px Arial";

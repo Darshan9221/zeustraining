@@ -159,7 +159,6 @@ export class Grid {
     }
     requestRedraw() {
         this.needsRedraw = true;
-        // Update statistics whenever redraw is requested (which happens on selection changes)
-        this.calculator.updateSelectionStats();
+        this.calculator.updateStats();
     }
 }
