@@ -1,3 +1,4 @@
+const rightArrowCursor = `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 512 512"><polygon points="512,261.5 298.7,90.8 298.7,218.8 0,218.8 0,304.2 298.7,304.2 298.7,432.2"/></svg>') 15 8, auto`;
 export class RowSelection {
     constructor(grid) {
         this.startRow = null;
@@ -8,6 +9,9 @@ export class RowSelection {
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
         return x < this.grid.headerWidth && y >= this.grid.headerHeight;
+    }
+    setCursor(e) {
+        return rightArrowCursor;
     }
     handleMouseDown(e) {
         const rect = this.grid.canvas.getBoundingClientRect();

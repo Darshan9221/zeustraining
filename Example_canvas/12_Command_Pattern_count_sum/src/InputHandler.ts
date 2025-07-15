@@ -4,6 +4,7 @@ export class InputHandler {
   private grid: Grid;
   private currentInput: HTMLInputElement | null = null;
   private isNavigating: boolean = false;
+  private documentMouseDownListener: ((e: MouseEvent) => void) | null = null;
 
   constructor(grid: Grid) {
     this.grid = grid;
@@ -66,11 +67,22 @@ export class InputHandler {
       input.select();
     }
 
-    input.addEventListener("blur", () => {
-      if (this.isNavigating) return;
-      this.commitAndHideInput();
-      this.grid.requestRedraw();
-    });
+    // FIX: Remove the problematic 'blur' listener
+    // input.addEventListener("blur", () => {
+    //   if (this.isNavigating) return;
+    //   this.commitAndHideInput();
+    //   this.grid.requestRedraw();
+    // });
+
+    // FIX: Add a mousedown listener to the whole document instead.
+    this.documentMouseDownListener = (e: MouseEvent) => {
+      // If the click is outside the current input, commit and hide.
+      if (this.currentInput && e.target !== this.currentInput) {
+        this.commitAndHideInput();
+      }
+    };
+    document.addEventListener("mousedown", this.documentMouseDownListener);
+
     input.addEventListener("keydown", (e) => this.handleInputKeyDown(e));
   }
 
@@ -187,6 +199,12 @@ export class InputHandler {
    * @param {boolean} wasCommitted - remove input box while selection
    */
   public hideInput(wasCommitted: boolean): void {
+    // FIX: Clean up the global event listener to prevent memory leaks.
+    if (this.documentMouseDownListener) {
+      document.removeEventListener("mousedown", this.documentMouseDownListener);
+      this.documentMouseDownListener = null;
+    }
+
     if (this.currentInput && this.currentInput.parentNode) {
       this.currentInput.parentNode.removeChild(this.currentInput);
     }

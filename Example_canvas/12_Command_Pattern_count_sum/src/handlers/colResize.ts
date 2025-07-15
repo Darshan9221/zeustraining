@@ -41,6 +41,10 @@ export class ColResize implements MouseHandler {
     return false;
   }
 
+  public setCursor(e: MouseEvent): string {
+    return "col-resize";
+  }
+
   public handleMouseDown(event: MouseEvent): void {
     if (this.hitTestCol === null) return;
 

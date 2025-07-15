@@ -26,6 +26,9 @@ export class ColResize {
         this.hitTestCol = null;
         return false;
     }
+    setCursor(e) {
+        return "col-resize";
+    }
     handleMouseDown(event) {
         if (this.hitTestCol === null)
             return;

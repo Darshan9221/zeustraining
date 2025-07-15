@@ -100,7 +100,7 @@ export class Renderer {
       const selectionWidth = selectionEndGutterX - selectionX;
       const selectionHeight = selectionEndGutterY - selectionY;
 
-      ctx.fillStyle = "#e8f2ec";
+      ctx.fillStyle = "#e7f1ec";
       ctx.fillRect(selectionX, selectionY, selectionWidth, selectionHeight);
 
       if (this.model.selectedRow !== null && this.model.selectedCol !== null) {
@@ -120,7 +120,7 @@ export class Renderer {
 
     // Draw the grid lines (the faint gray ones)
     ctx.beginPath();
-    ctx.strokeStyle = "#ddd";
+    ctx.strokeStyle = "#dcdcdc";
     for (
       let c = this.model.viewportStartCol;
       c <= this.model.viewportEndCol + 1;
@@ -218,7 +218,7 @@ export class Renderer {
 
     // Draw highlights on the headers for selected rows/cols
     if (hasSelection) {
-      let rowHeaderColor = isFullRowSelection ? "#0f703b" : "#a0d8b9";
+      let rowHeaderColor = isFullRowSelection ? "#0f703b" : "#caead8";
       ctx.fillStyle = rowHeaderColor;
       for (
         let r = Math.max(minRow, this.model.viewportStartRow);
@@ -234,7 +234,7 @@ export class Renderer {
         );
       }
 
-      let colHeaderColor = isFullColSelection ? "#0f703b" : "#a0d8b9";
+      let colHeaderColor = isFullColSelection ? "#0f703b" : "#caead8";
       ctx.fillStyle = colHeaderColor;
       for (
         let c = Math.max(minCol, this.model.viewportStartCol);
@@ -252,7 +252,8 @@ export class Renderer {
 
       // Redraw grid lines on top of highlighted headers
       ctx.beginPath();
-      ctx.strokeStyle = "#ddd";
+      // FIX: Changed the line color for selected header cells
+      ctx.strokeStyle = "#a0d8b9";
       ctx.lineWidth = 1;
 
       // Vertical lines for highlighted column headers
@@ -344,7 +345,7 @@ export class Renderer {
       ) {
         const x = this.calculator.getColX(c) - this.model.scrollX;
         const w = this.model.colWidths[c];
-        const y = this.model.headerHeight - 0.5;
+        const y = this.model.headerHeight + 0.5;
         ctx.moveTo(x, y);
         ctx.lineTo(x + w, y);
       }
@@ -355,7 +356,7 @@ export class Renderer {
       ) {
         const y = this.calculator.getRowY(r) - this.model.scrollY;
         const h = this.model.rowHeights[r];
-        const x = this.model.headerWidth - 0.5;
+        const x = this.model.headerWidth + 0.5;
         ctx.moveTo(x, y);
         ctx.lineTo(x, y + h);
       }

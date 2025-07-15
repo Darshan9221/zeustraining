@@ -57,17 +57,17 @@ export class TouchHandler {
             }
         }
         else {
-            // If we're just moving the mouse (not dragging), check for hover effects like changing the cursor
+            // If we're just hovering, find the correct handler and set the cursor.
             let cursorSet = false;
-            if (this.handlers.columnResize.hitTest(e)) {
-                this.canvas.style.cursor = "col-resize";
-                cursorSet = true;
+            for (const handler of this.handlerPriority) {
+                if (handler.hitTest(e)) {
+                    this.canvas.style.cursor = handler.setCursor(e);
+                    cursorSet = true;
+                    break;
+                }
             }
-            else if (this.handlers.rowResize.hitTest(e)) {
-                this.canvas.style.cursor = "row-resize";
-                cursorSet = true;
-            }
-            if (!cursorSet && this.canvas.style.cursor !== "default") {
+            // Fallback if no handler is hit (e.g., mouse is outside canvas but still firing events)
+            if (!cursorSet) {
                 this.canvas.style.cursor = "default";
             }
         }

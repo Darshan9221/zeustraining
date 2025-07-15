@@ -25,6 +25,9 @@ export class RowResize {
         this.hitTestRow = null;
         return false;
     }
+    setCursor(e) {
+        return "row-resize";
+    }
     handleMouseDown(e) {
         if (this.hitTestRow === null)
             return;

@@ -8,6 +8,9 @@ export class RangeSelection {
         const y = e.clientY - rect.top;
         return x >= this.grid.headerWidth && y >= this.grid.headerHeight;
     }
+    setCursor(e) {
+        return "cell";
+    }
     handleMouseDown(e) {
         const rect = this.grid.canvas.getBoundingClientRect();
         const clickX = e.clientX - rect.left;
