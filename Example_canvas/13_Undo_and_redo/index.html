@@ -14,7 +14,7 @@
       .grid-container {
         position: relative;
         width: 100vw;
-        height: 96vh;
+        height: 93vh;
         overflow: hidden;
       }
 
@@ -30,9 +30,9 @@
       }
 
       .scrollbar-h {
-        bottom: 15px;
+        bottom: 0;
         left: 0;
-        right: 86px;
+        right: 20px;
         height: 20px;
         overflow-x: auto;
         overflow-y: hidden;
@@ -41,7 +41,7 @@
       .scrollbar-v {
         top: 0;
         right: 0;
-        bottom: 49px;
+        bottom: 20px;
         width: 20px;
         overflow-x: hidden;
         overflow-y: auto;
@@ -56,33 +56,27 @@
       }
 
       .statistics-bar {
-        position: absolute;
-        bottom: 0;
-        display: flex;
-        justify-content: end;
-        right: 20px;
-        height: 15px;
-        width: 100%;
+        padding: 4px 8px;
+        font-family: monospace;
+        font-size: 12px;
         background: #f8f8f8;
         border-top: 1px solid #ccc;
-        border-bottom: 1px solid #ccc;
-        display: flex;
-        align-items: center;
-        padding: 0 8px;
-        font-family: Arial, sans-serif;
-        font-size: 12px;
-        color: #333;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        box-sizing: border-box;
         z-index: 10;
       }
 
-      .statistics-item {
+      /* .statistics-item {
         margin-right: 15px;
         white-space: nowrap;
       }
 
       .statistics-item strong {
         color: #000;
-      }
+      } */
 
       /* 
       .info-panel {
@@ -111,7 +105,7 @@
       <div class="scrollbar-container scrollbar-v">
         <div class="scrollbar-content-v" id="vScrollContent"></div>
       </div>
-
+      <!-- 
       <div class="statistics-bar" id="statisticsBar">
         <div class="statistics-item">
           <strong>Count:</strong> <span id="statCount">0</span>
@@ -128,6 +122,12 @@
         <div class="statistics-item">
           <strong>Max:</strong> <span id="statMax">0</span>
         </div>
+      </div> -->
+
+      <div class="statistics-bar" id="statusBar">
+        Count: <span id="statCount">0</span> | Sum:
+        <span id="statSum">0</span> | Average: <span id="statAverage">0</span> |
+        Min: <span id="statMin">0</span> | Max: <span id="statMax">0</span>
       </div>
 
       <!-- <div class="info-panel" style="z-index: 10000">

@@ -1,16 +1,10 @@
 import { Grid } from "../Grid";
 
-/**
- * The interface for any action that can be executed and undone.
- */
 export interface ICommand {
   execute(grid: Grid): void;
   undo(grid: Grid): void;
 }
 
-/**
- * Command for editing the value of a single cell.
- */
 export class EditCellCommand implements ICommand {
   constructor(
     private readonly row: number,
@@ -28,9 +22,6 @@ export class EditCellCommand implements ICommand {
   }
 }
 
-/**
- * Command for resizing a column.
- */
 export class ResizeColCommand implements ICommand {
   constructor(
     private readonly col: number,
@@ -49,9 +40,6 @@ export class ResizeColCommand implements ICommand {
   }
 }
 
-/**
- * Command for resizing a row.
- */
 export class ResizeRowCommand implements ICommand {
   constructor(
     private readonly row: number,

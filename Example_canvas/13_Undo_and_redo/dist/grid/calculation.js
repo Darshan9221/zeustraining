@@ -117,41 +117,49 @@ export class Calculator {
         }, 150);
     }
     performStatsUpdate() {
+        const statusBar = document.getElementById("statusBar");
+        if (!statusBar)
+            return;
         const startRow = this.model.selectionStartRow;
         const endRow = this.model.selectionEndRow;
         const startCol = this.model.selectionStartCol;
         const endCol = this.model.selectionEndCol;
+        const hasSelection = startRow !== null &&
+            endRow !== null &&
+            startCol !== null &&
+            endCol !== null;
+        if (!hasSelection) {
+            statusBar.style.display = "none";
+            return;
+        }
+        else {
+            statusBar.style.display = "block";
+        }
         let totalCnt = 0;
         let cnt = 0;
         let sum = 0;
         let min = Number.POSITIVE_INFINITY;
         let max = Number.NEGATIVE_INFINITY;
         let hasNums = false;
-        if (startRow !== null &&
-            endRow !== null &&
-            startCol !== null &&
-            endCol !== null) {
-            const minRow = Math.min(startRow, endRow);
-            const maxRow = Math.max(startRow, endRow);
-            const minCol = Math.min(startCol, endCol);
-            const maxCol = Math.max(startCol, endCol);
-            for (let row = minRow; row <= maxRow; row++) {
-                for (let col = minCol; col <= maxCol; col++) {
-                    const val = this.model.getCellValue(row, col);
-                    if (val !== "" && val !== null && val !== undefined) {
-                        totalCnt++;
-                        // Check if the cell value is a pure number (not mixed with text)
-                        const numValue = parseFloat(val);
-                        const isValidNumber = !isNaN(numValue) &&
-                            isFinite(numValue) &&
-                            String(numValue) === String(val).trim();
-                        if (isValidNumber) {
-                            cnt++;
-                            sum += numValue;
-                            min = Math.min(min, numValue);
-                            max = Math.max(max, numValue);
-                            hasNums = true;
-                        }
+        const minRow = Math.min(startRow, endRow);
+        const maxRow = Math.max(startRow, endRow);
+        const minCol = Math.min(startCol, endCol);
+        const maxCol = Math.max(startCol, endCol);
+        for (let row = minRow; row <= maxRow; row++) {
+            for (let col = minCol; col <= maxCol; col++) {
+                const val = this.model.getCellValue(row, col);
+                if (val !== "" && val !== null && val !== undefined) {
+                    totalCnt++;
+                    const numValue = parseFloat(val);
+                    const isValidNumber = !isNaN(numValue) &&
+                        isFinite(numValue) &&
+                        String(numValue) === String(val).trim();
+                    if (isValidNumber) {
+                        cnt++;
+                        sum += numValue;
+                        min = Math.min(min, numValue);
+                        max = Math.max(max, numValue);
+                        hasNums = true;
                     }
                 }
             }
@@ -164,19 +172,19 @@ export class Calculator {
         if (hasNums && cnt > 0) {
             const avg = sum / cnt;
             if (cnt1)
-                cnt1.textContent = totalCnt.toString();
+                cnt1.textContent = totalCnt.toLocaleString();
             if (sum1)
-                sum1.textContent = sum.toString();
+                sum1.textContent = sum.toLocaleString();
             if (avg1)
-                avg1.textContent = avg.toString();
+                avg1.textContent = avg.toLocaleString();
             if (min1)
-                min1.textContent = min.toString();
+                min1.textContent = min.toLocaleString();
             if (max1)
-                max1.textContent = max.toString();
+                max1.textContent = max.toLocaleString();
         }
         else {
             if (cnt1)
-                cnt1.textContent = totalCnt.toString();
+                cnt1.textContent = totalCnt.toLocaleString();
             if (sum1)
                 sum1.textContent = "0";
             if (avg1)

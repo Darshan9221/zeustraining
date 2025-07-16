@@ -18,11 +18,11 @@ class App {
         const cols = 500;
         const defaultCellW = 80;
         const defaultCellH = 24;
-        // 1. Core grid components are created first.
+        // Core grid elements
         this.grid = new Grid(canvas, rows, cols, defaultCellW, defaultCellH);
         this.historyManager = new HistoryManager(this.grid);
         this.inputHandler = new InputHandler(this.grid, this.historyManager);
-        // 2. Helper classes for mouse interactions are created.
+        //  Helper classes for mouse interactions
         const autoScrollHandler = new AutoScroll(this.grid, canvas);
         const handlers = {
             range: new RangeSelection(this.grid),
@@ -32,12 +32,11 @@ class App {
             rowResize: new RowResize(this.grid, this.historyManager),
             columnResize: new ColResize(this.grid, this.historyManager),
         };
-        // 3. The main TouchHandler orchestrates all mouse interactions.
-        // It no longer needs the HistoryManager itself.
+        // Main TouchHandler
         this.touchHandler = new TouchHandler(this.grid, canvas, this.inputHandler, autoScrollHandler, handlers);
-        // 4. Keyboard navigation handler is created.
+        // Keyboard navigation handler
         this.cellNavigation = new CellNavigation(this.grid, this.inputHandler, this.touchHandler);
-        // 5. Wire up dependencies and initialize.
+        // Initialization
         this.grid.setTouchHandler(this.touchHandler);
         this.setupEventListeners();
         this.setupUI();
@@ -57,17 +56,12 @@ class App {
         this.grid.canvas.addEventListener("wheel", this.handleWheel.bind(this), {
             passive: false,
         });
-        // A single, central keydown listener for the whole app.
+        // Central keydown event listener
         document.addEventListener("keydown", (e) => this.handleKeyDown(e));
     }
-    /**
-     * Central keyboard event handler. It processes global shortcuts like undo/redo
-     * before delegating to the navigation handler.
-     */
+    //Central keyboard handler for undo/redo
     handleKeyDown(e) {
-        // Handle global shortcuts first (e.g., Undo/Redo).
-        if (e.ctrlKey || e.metaKey) {
-            // metaKey for macOS
+        if (e.ctrlKey) {
             if (e.key.toLowerCase() === "z") {
                 e.preventDefault();
                 if (e.shiftKey) {
@@ -76,15 +70,11 @@ class App {
                 else {
                     this.historyManager.undo();
                 }
-                return; // Stop processing after handling undo/redo.
+                return;
             }
         }
-        // If it wasn't a global shortcut, pass it to the cell navigation handler.
         this.cellNavigation.handleKeyDown(e);
     }
-    /**
-     * Programmatically creates the UI controls for data generation and file loading.
-     */
     setupUI() {
         const controlsDiv = document.createElement("div");
         controlsDiv.style.display = "flex";
@@ -101,7 +91,7 @@ class App {
         numInput.style.marginRight = "16px";
         genButton.addEventListener("click", () => {
             const count = parseInt(numInput.value, 10);
-            const maxRecords = this.grid.rows - 10; // Reserve some rows
+            const maxRecords = this.grid.rows - 10;
             if (isNaN(count) || count <= 0) {
                 alert("Please enter a valid positive number.");
                 return;
@@ -125,22 +115,22 @@ class App {
         controlsDiv.appendChild(fileLabel);
         controlsDiv.appendChild(fileInput);
         document.body.insertBefore(controlsDiv, document.body.firstChild);
-        // Status bar for selection stats
-        const statusBar = document.createElement("div");
-        statusBar.id = "statusBar";
-        statusBar.style.padding = "4px 8px";
-        statusBar.style.fontFamily = "monospace";
-        statusBar.style.fontSize = "12px";
-        statusBar.style.background = "#f8f8f8";
-        statusBar.style.borderTop = "1px solid #ccc";
-        statusBar.style.position = "fixed";
-        statusBar.style.bottom = "0";
-        statusBar.style.left = "0";
-        statusBar.style.width = "100%";
-        statusBar.style.boxSizing = "border-box";
-        statusBar.innerHTML =
-            'Count: <span id="statCount">0</span>  |  Sum: <span id="statSum">0</span>  |  Average: <span id="statAverage">0</span>  |  Min: <span id="statMin">0</span>  |  Max: <span id="statMax">0</span>';
-        document.body.appendChild(statusBar);
+        // // Status bar for selection stats
+        // const statusBar = document.createElement("div");
+        // statusBar.id = "statusBar";
+        // statusBar.style.padding = "4px 8px";
+        // statusBar.style.fontFamily = "monospace";
+        // statusBar.style.fontSize = "12px";
+        // statusBar.style.background = "#f8f8f8";
+        // statusBar.style.borderTop = "1px solid #ccc";
+        // statusBar.style.position = "fixed";
+        // statusBar.style.bottom = "0";
+        // statusBar.style.left = "0";
+        // statusBar.style.width = "100%";
+        // statusBar.style.boxSizing = "border-box";
+        // statusBar.innerHTML =
+        //   'Count: <span id="statCount">0</span>  |  Sum: <span id="statSum">0</span>  |  Average: <span id="statAverage">0</span>  |  Min: <span id="statMin">0</span>  |  Max: <span id="statMax">0</span>';
+        // document.body.appendChild(statusBar);
     }
     /**
      * Handles scroll events from the custom scrollbars, updating the grid's

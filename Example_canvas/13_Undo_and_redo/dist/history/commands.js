@@ -1,6 +1,3 @@
-/**
- * Command for editing the value of a single cell.
- */
 export class EditCellCommand {
     constructor(row, col, fromValue, toValue) {
         this.row = row;
@@ -15,9 +12,6 @@ export class EditCellCommand {
         grid.setCellValue(this.row, this.col, this.fromValue);
     }
 }
-/**
- * Command for resizing a column.
- */
 export class ResizeColCommand {
     constructor(col, fromWidth, toWidth) {
         this.col = col;
@@ -33,9 +27,6 @@ export class ResizeColCommand {
         grid.updateScrollbarContentSize();
     }
 }
-/**
- * Command for resizing a row.
- */
 export class ResizeRowCommand {
     constructor(row, fromHeight, toHeight) {
         this.row = row;
