@@ -169,10 +169,7 @@ class App {
     // document.body.appendChild(statusBar);
   }
 
-  /**
-   * Handles scroll events from the custom scrollbars, updating the grid's
-   * scroll position and redrawing.
-   */
+  // Handles scroll events from the custom scrollbars
   private handleScroll(): void {
     this.grid.scrollX = document.querySelector(".scrollbar-h")!.scrollLeft;
     this.grid.scrollY = document.querySelector(".scrollbar-v")!.scrollTop;
@@ -183,9 +180,7 @@ class App {
     }
   }
 
-  /**
-   * Handles mouse wheel events for scrolling the grid.
-   */
+  // Handles mouse wheel events for scrolling
   private handleWheel(e: WheelEvent): void {
     e.preventDefault();
     const hScrollbar = document.querySelector(".scrollbar-h")!;
@@ -202,5 +197,4 @@ class App {
   }
 }
 
-// Start the application once the DOM is ready.
 window.addEventListener("DOMContentLoaded", () => new App());

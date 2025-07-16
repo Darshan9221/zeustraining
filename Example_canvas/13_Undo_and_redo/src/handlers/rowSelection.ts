@@ -36,7 +36,7 @@ export class RowSelection implements MouseHandler {
     this.grid.selectionStartRow = this.startRow;
     this.grid.selectionEndRow = row_index;
     this.grid.selectionStartCol = 1;
-    this.grid.selectionEndCol = this.grid.cols - 1;
+    this.grid.selectionEndCol = this.grid.cols - 2;
     this.grid.requestRedraw();
   }
 

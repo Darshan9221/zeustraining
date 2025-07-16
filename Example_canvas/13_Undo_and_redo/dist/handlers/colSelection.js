@@ -26,7 +26,7 @@ export class ColSelection {
         this.grid.selectionStartCol = this.startCol;
         this.grid.selectionEndCol = col_index;
         this.grid.selectionStartRow = 1;
-        this.grid.selectionEndRow = this.grid.rows - 1;
+        this.grid.selectionEndRow = this.grid.rows - 2;
         this.grid.requestRedraw();
     }
     handleMouseDrag(e) {

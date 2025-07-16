@@ -132,10 +132,7 @@ class App {
         //   'Count: <span id="statCount">0</span>  |  Sum: <span id="statSum">0</span>  |  Average: <span id="statAverage">0</span>  |  Min: <span id="statMin">0</span>  |  Max: <span id="statMax">0</span>';
         // document.body.appendChild(statusBar);
     }
-    /**
-     * Handles scroll events from the custom scrollbars, updating the grid's
-     * scroll position and redrawing.
-     */
+    // Handles scroll events from the custom scrollbars
     handleScroll() {
         this.grid.scrollX = document.querySelector(".scrollbar-h").scrollLeft;
         this.grid.scrollY = document.querySelector(".scrollbar-v").scrollTop;
@@ -144,9 +141,7 @@ class App {
             this.inputHandler.updateInputPosition();
         }
     }
-    /**
-     * Handles mouse wheel events for scrolling the grid.
-     */
+    // Handles mouse wheel events for scrolling
     handleWheel(e) {
         e.preventDefault();
         const hScrollbar = document.querySelector(".scrollbar-h");
@@ -162,5 +157,4 @@ class App {
         }
     }
 }
-// Start the application once the DOM is ready.
 window.addEventListener("DOMContentLoaded", () => new App());

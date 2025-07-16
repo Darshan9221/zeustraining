@@ -35,12 +35,11 @@ export class TouchHandler {
         if (this.inputHandler.isActive()) {
             this.inputHandler.commitAndHideInput();
         }
-        // Go through our handlers and find the first one that wants to handle this click
         for (const handler of this.handlerPriority) {
             if (handler.hitTest(e)) {
                 this.activeHandler = handler;
                 this.activeHandler.handleMouseDown(e);
-                break; // Stop after the first match
+                break;
             }
         }
     }
@@ -56,7 +55,6 @@ export class TouchHandler {
             }
         }
         else {
-            // If we're just hovering, find the correct handler and set the cursor.
             let cursorSet = false;
             for (const handler of this.handlerPriority) {
                 if (handler.hitTest(e)) {
@@ -65,7 +63,6 @@ export class TouchHandler {
                     break;
                 }
             }
-            // Fallback if no handler is hit (e.g., mouse is outside canvas but still firing events)
             if (!cursorSet) {
                 this.canvas.style.cursor = "default";
             }
@@ -77,10 +74,7 @@ export class TouchHandler {
      */
     handleMouseUp(e) {
         if (this.activeHandler) {
-            // FIX: The active handler (e.g., ColResize) is now responsible for
-            // recording its own action with the HistoryManager. We just call it.
             this.activeHandler.handleMouseUp(e);
-            // a drag is finished, so reset everything
             this.activeHandler = null;
             this.autoScroll.handleMouseUp();
             this.grid.requestRedraw();
@@ -91,7 +85,6 @@ export class TouchHandler {
      * @param {MouseEvent} e
      */
     handleDblClick(e) {
-        // This handler is for range selection only (not resizing headers)
         if (this.handlers.range.hitTest(e)) {
             if (this.grid.selectedRow !== null && this.grid.selectedCol !== null) {
                 this.inputHandler.showInputBox(this.grid.selectedRow, this.grid.selectedCol);

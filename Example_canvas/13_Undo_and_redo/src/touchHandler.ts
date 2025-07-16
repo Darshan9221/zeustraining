@@ -15,7 +15,6 @@ export class TouchHandler {
   private autoScroll: AutoScroll;
   private handlers: TouchHandlers;
 
-  // Order of interactions. Important!
   private handlerPriority: MouseHandler[];
 
   private activeHandler: MouseHandler | null = null;
@@ -62,12 +61,11 @@ export class TouchHandler {
       this.inputHandler.commitAndHideInput();
     }
 
-    // Go through our handlers and find the first one that wants to handle this click
     for (const handler of this.handlerPriority) {
       if (handler.hitTest(e)) {
         this.activeHandler = handler;
         this.activeHandler.handleMouseDown(e);
-        break; // Stop after the first match
+        break;
       }
     }
   }
@@ -86,7 +84,6 @@ export class TouchHandler {
         this.autoScroll.handleMouseDrag(e, this.activeHandler);
       }
     } else {
-      // If we're just hovering, find the correct handler and set the cursor.
       let cursorSet = false;
       for (const handler of this.handlerPriority) {
         if (handler.hitTest(e)) {
@@ -95,7 +92,6 @@ export class TouchHandler {
           break;
         }
       }
-      // Fallback if no handler is hit (e.g., mouse is outside canvas but still firing events)
       if (!cursorSet) {
         this.canvas.style.cursor = "default";
       }
@@ -108,11 +104,7 @@ export class TouchHandler {
    */
   private handleMouseUp(e: MouseEvent): void {
     if (this.activeHandler) {
-      // FIX: The active handler (e.g., ColResize) is now responsible for
-      // recording its own action with the HistoryManager. We just call it.
       this.activeHandler.handleMouseUp(e);
-
-      // a drag is finished, so reset everything
       this.activeHandler = null;
       this.autoScroll.handleMouseUp();
       this.grid.requestRedraw();
@@ -124,7 +116,6 @@ export class TouchHandler {
    * @param {MouseEvent} e
    */
   private handleDblClick(e: MouseEvent): void {
-    // This handler is for range selection only (not resizing headers)
     if (this.handlers.range.hitTest(e)) {
       if (this.grid.selectedRow !== null && this.grid.selectedCol !== null) {
         this.inputHandler.showInputBox(
