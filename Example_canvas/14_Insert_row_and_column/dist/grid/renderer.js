@@ -163,37 +163,36 @@ export class Renderer {
             }
             ctx.fillText(this.colNumAlphabets(c - 1), screenX + this.model.colWidths[c] / 2, this.model.headerHeight / 2);
         }
-        // 5. Draw the thin green selection lines INSIDE the headers
+        // 4. Draw the thin green selection lines on the headers
         if (hasSelection) {
             ctx.beginPath();
             ctx.strokeStyle = "#107c41";
             ctx.lineWidth = 1;
-            // FIX: Start loops one cell earlier to include partially visible headers.
+            // This ensures lines are drawn for partially visible cells.
             for (let c = Math.max(minCol, this.model.viewportStartCol - 1); c <= Math.min(maxCol, this.model.viewportEndCol); c++) {
                 const x = this.calculator.getColX(c) - this.model.scrollX;
                 const w = this.model.colWidths[c];
-                const y = this.model.headerHeight + 1.5;
+                const y = this.model.headerHeight + 0.5;
                 ctx.moveTo(x, y);
                 ctx.lineTo(x + w, y);
             }
             for (let r = Math.max(minRow, this.model.viewportStartRow - 1); r <= Math.min(maxRow, this.model.viewportEndRow); r++) {
                 const y = this.calculator.getRowY(r) - this.model.scrollY;
                 const h = this.model.rowHeights[r];
-                const x = this.model.headerWidth + 1.5;
+                const x = this.model.headerWidth + 0.5;
                 ctx.moveTo(x, y);
                 ctx.lineTo(x, y + h);
             }
             ctx.stroke();
         }
-        // 6. Draw the main structural borders and the top-left corner last
         ctx.fillStyle = "#f5f5f5";
         ctx.fillRect(0, 0, this.model.headerWidth, this.model.headerHeight);
         ctx.beginPath();
         ctx.strokeStyle = "#ccc";
         ctx.moveTo(this.model.headerWidth + 0.5, 0);
-        ctx.lineTo(this.model.headerWidth + 0.5, this.canvas.height);
+        ctx.lineTo(this.model.headerWidth + 0.5, this.model.headerHeight + 0.5);
         ctx.moveTo(0, this.model.headerHeight + 0.5);
-        ctx.lineTo(this.canvas.width, this.model.headerHeight + 0.5);
+        ctx.lineTo(this.model.headerWidth + 0.5, this.model.headerHeight + 0.5);
         ctx.stroke();
     }
 }

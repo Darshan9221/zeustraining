@@ -305,8 +305,7 @@ export class Model {
         this.cellData.clear();
     }
     /**
-     * CORRECTED: Inserts a blank column by planning all changes first, then applying them.
-     * This avoids read-after-write errors.
+     * Inserts a blank column and shifts the selection if necessary.
      * @param {number} col - The column index where the new column should be inserted.
      */
     insertColumn(col) {
@@ -328,9 +327,18 @@ export class Model {
         }
         const newColWidth = this.colWidths[col] || 80;
         this.colWidths.splice(col, 0, newColWidth);
+        if (this.selectedCol !== null && this.selectedCol >= col) {
+            this.selectedCol++;
+        }
+        if (this.selectionStartCol !== null && this.selectionStartCol >= col) {
+            this.selectionStartCol++;
+        }
+        if (this.selectionEndCol !== null && this.selectionEndCol >= col) {
+            this.selectionEndCol++;
+        }
     }
     /**
-     * CORRECTED: Removes a column using a safe two-pass approach.
+     * Removes a column and shifts the selection if necessary.
      * @param {number} col - The column index to remove.
      */
     removeColumn(col) {
@@ -354,9 +362,19 @@ export class Model {
             this.cellData.set(key, value);
         }
         this.colWidths.splice(col, 1);
+        if (this.selectedCol !== null && this.selectedCol > col) {
+            this.selectedCol--;
+        }
+        if (this.selectionStartCol !== null && this.selectionStartCol > col) {
+            this.selectionStartCol--;
+        }
+        // If a selection range ends at or after the deleted column, it must shrink.
+        if (this.selectionEndCol !== null && this.selectionEndCol >= col) {
+            this.selectionEndCol--;
+        }
     }
     /**
-     * CORRECTED: Inserts a blank row using a safe two-pass approach.
+     * Inserts a blank row and shifts the selection if necessary.
      * @param {number} row - The row index where the new row should be inserted.
      */
     insertRow(row) {
@@ -378,9 +396,18 @@ export class Model {
         }
         const newRowHeight = this.rowHeights[row] || 24;
         this.rowHeights.splice(row, 0, newRowHeight);
+        if (this.selectedRow !== null && this.selectedRow >= row) {
+            this.selectedRow++;
+        }
+        if (this.selectionStartRow !== null && this.selectionStartRow >= row) {
+            this.selectionStartRow++;
+        }
+        if (this.selectionEndRow !== null && this.selectionEndRow >= row) {
+            this.selectionEndRow++;
+        }
     }
     /**
-     * CORRECTED: Removes a row using a safe two-pass approach.
+     * Removes a row and shifts the selection if necessary.
      * @param {number} row - The row index to remove.
      */
     removeRow(row) {
@@ -404,5 +431,15 @@ export class Model {
             this.cellData.set(key, value);
         }
         this.rowHeights.splice(row, 1);
+        if (this.selectedRow !== null && this.selectedRow > row) {
+            this.selectedRow--;
+        }
+        if (this.selectionStartRow !== null && this.selectionStartRow > row) {
+            this.selectionStartRow--;
+        }
+        // If a selection range ends at or after the deleted row, it must shrink.
+        if (this.selectionEndRow !== null && this.selectionEndRow >= row) {
+            this.selectionEndRow--;
+        }
     }
 }
