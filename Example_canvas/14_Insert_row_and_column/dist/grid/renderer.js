@@ -172,14 +172,14 @@ export class Renderer {
             for (let c = Math.max(minCol, this.model.viewportStartCol - 1); c <= Math.min(maxCol, this.model.viewportEndCol); c++) {
                 const x = this.calculator.getColX(c) - this.model.scrollX;
                 const w = this.model.colWidths[c];
-                const y = this.model.headerHeight + 0.5;
+                const y = this.model.headerHeight + 1.5;
                 ctx.moveTo(x, y);
                 ctx.lineTo(x + w, y);
             }
             for (let r = Math.max(minRow, this.model.viewportStartRow - 1); r <= Math.min(maxRow, this.model.viewportEndRow); r++) {
                 const y = this.calculator.getRowY(r) - this.model.scrollY;
                 const h = this.model.rowHeights[r];
-                const x = this.model.headerWidth + 0.5;
+                const x = this.model.headerWidth + 1.5;
                 ctx.moveTo(x, y);
                 ctx.lineTo(x, y + h);
             }

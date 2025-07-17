@@ -7,10 +7,10 @@ export interface ICommand {
 
 export class EditCellCommand implements ICommand {
   constructor(
-    private readonly row: number,
-    private readonly col: number,
-    private readonly fromValue: any,
-    private readonly toValue: any
+    private row: number,
+    private col: number,
+    private fromValue: any,
+    private toValue: any
   ) {}
 
   public execute(grid: Grid): void {
@@ -24,9 +24,9 @@ export class EditCellCommand implements ICommand {
 
 export class ResizeColCommand implements ICommand {
   constructor(
-    private readonly col: number,
-    private readonly fromWidth: number,
-    private readonly toWidth: number
+    private col: number,
+    private fromWidth: number,
+    private toWidth: number
   ) {}
 
   public execute(grid: Grid): void {
@@ -42,9 +42,9 @@ export class ResizeColCommand implements ICommand {
 
 export class ResizeRowCommand implements ICommand {
   constructor(
-    private readonly row: number,
-    private readonly fromHeight: number,
-    private readonly toHeight: number
+    private row: number,
+    private fromHeight: number,
+    private toHeight: number
   ) {}
 
   public execute(grid: Grid): void {
@@ -62,7 +62,7 @@ export class ResizeRowCommand implements ICommand {
  * Command for inserting a column.
  */
 export class InsertColumnCommand implements ICommand {
-  constructor(private readonly col: number) {}
+  constructor(private col: number) {}
 
   public execute(grid: Grid): void {
     grid.insertColumn(this.col);
@@ -79,7 +79,7 @@ export class InsertColumnCommand implements ICommand {
  * Command for inserting a row.
  */
 export class InsertRowCommand implements ICommand {
-  constructor(private readonly row: number) {}
+  constructor(private row: number) {}
 
   public execute(grid: Grid): void {
     grid.insertRow(this.row);

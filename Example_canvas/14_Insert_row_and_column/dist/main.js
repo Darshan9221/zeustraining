@@ -1,4 +1,3 @@
-// src/App.ts
 import { Grid } from "./Grid";
 import { InputHandler } from "./InputHandler";
 import { DataManager } from "./DataManager";
@@ -11,7 +10,7 @@ import { AutoScroll } from "./handlers/autoScroll";
 import { CellNavigation } from "./handlers/cellNavigation";
 import { HistoryManager } from "./history/historyManager";
 import { TouchHandler } from "./touchHandler";
-import { ContextMenu } from "./ContextMenu"; // Import the new class
+import { ContextMenu } from "./ContextMenu";
 class App {
     constructor() {
         const canvas = document.getElementById("gridCanvas");
@@ -44,9 +43,7 @@ class App {
         this.setupUI();
         this.grid.resizeCanvas();
     }
-    /**
-     * Attaches all high-level event listeners for the application.
-     */
+    //  Attaches all high-level event listeners
     setupEventListeners() {
         const hScrollbar = document.querySelector(".scrollbar-h");
         const vScrollbar = document.querySelector(".scrollbar-v");

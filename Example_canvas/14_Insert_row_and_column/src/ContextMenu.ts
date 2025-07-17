@@ -1,5 +1,3 @@
-// Create new file: src/ContextMenu.ts
-
 import { Grid } from "./Grid";
 import { HistoryManager } from "./history/historyManager";
 import { InsertColumnCommand, InsertRowCommand } from "./history/commands";
@@ -24,7 +22,7 @@ export class ContextMenu {
   }
 
   public show(x: number, y: number, row: number | null, col: number | null) {
-    this.menu.innerHTML = ""; // Clear previous items
+    this.menu.innerHTML = "";
     this.menu.style.left = `${x}px`;
     this.menu.style.top = `${y}px`;
 
@@ -72,7 +70,7 @@ export class ContextMenu {
   private handleInsertColumn(col: number) {
     // Check if the last column has data
     for (let r = 1; r < this.grid.rows; r++) {
-      if (this.grid.getCellValue(r, this.grid.cols - 1)) {
+      if (this.grid.getCellValue(r, this.grid.cols - 2)) {
         alert(
           "Cannot insert column: The last column contains data that would be lost."
         );
@@ -86,7 +84,7 @@ export class ContextMenu {
   private handleInsertRow(row: number) {
     // Check if the last row has data
     for (let c = 1; c < this.grid.cols; c++) {
-      if (this.grid.getCellValue(this.grid.rows - 1, c)) {
+      if (this.grid.getCellValue(this.grid.rows - 2, c)) {
         alert(
           "Cannot insert row: The last row contains data that would be lost."
         );
